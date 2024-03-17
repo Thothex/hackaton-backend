@@ -1,39 +1,27 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('tasks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      email: {
+      name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
       },
-      login: {
+      description: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
       },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      team_id: {
+      hackathon_id: {
         type: Sequelize.INTEGER,
-        allowNull: true,
       },
-      score: {
+      max_score: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
       },
-      status: {
+      type: {
         type: Sequelize.STRING,
-        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -46,6 +34,6 @@ module.exports = {
     })
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users')
+    await queryInterface.dropTable('tasks')
   },
 }
