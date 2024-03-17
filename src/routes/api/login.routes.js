@@ -8,14 +8,15 @@ const LoginAPIRouter = express.Router()
 LoginAPIRouter.post('/login', async (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
-    return res.status(400).json({ error: 'Wrong password123' })
+    return res.status(401).json({ error: 'Login or password not specified' })
   }
   try {
     const user = await User.findOne({ where: { email }, raw: true })
     if (!user) {
-      return res.status(400).json({ error: 'Wrong password456' })
+      return res.status(401).json({ error: 'Wrong login or password' })
     }
     const isSame = await bcrypt.compare(password, user.password)
+    console.log('isSame: ', isSame)
     if (isSame) {
       // раньше тут отдавался пользователь без пароля, теперь отдаем токен
       // можно дополнить ответ пользователем
@@ -23,6 +24,8 @@ LoginAPIRouter.post('/login', async (req, res) => {
       const token = generateToken(user)
       res.status(200)
       res.json({ token })
+    } else {
+      return res.status(401).json({ error: 'Wrong login or password' })
     }
   } catch (error) {
     console.error('error: ', error)
