@@ -1,0 +1,23 @@
+{
+  "bracketSpacing": true,
+  "bracesSpacing": true,
+  "jsxBracketSameLine": true,
+  "jsxSingleQuote": true,
+  "noSemi": true,
+  "printWidth": 120,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "useTabs": false,
+  "semi": false,
+  "object-curly-newline": [
+    "error",
+    {
+      "multiline": true,
+      "ObjectExpression": { "consistent": true, "multiline": true },
+      "ObjectPattern": { "consistent": true, "multiline": true },
+      "ImportDeclaration": "never",
+      "ExportDeclaration": { "multiline": true, "minProperties": 3 }
+    }
+  ]
+}
