@@ -1,1 +1,1 @@
-# course-backend
+# hackaton-backend
