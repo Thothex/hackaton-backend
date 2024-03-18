@@ -10,12 +10,20 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
       },
       is_captain: {
         type: Sequelize.BOOLEAN,
       },
       team_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'teams',
+          key: 'id',
+        },
       },
       createdAt: {
         allowNull: false,

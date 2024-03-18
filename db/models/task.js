@@ -7,14 +7,16 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
-      // define association here
+    static associate({ User, Team, Hackathon }) {
+      Task.belongsToMany(User, { through: 'TeamAnswer', foreignKey: 'task_id', otherKey: 'user_id' })
+      Task.belongsToMany(Team, { through: 'TeamAnswer', foreignKey: 'task_id', otherKey: 'team_id' })
+      Task.belongsTo(Hackathon, { foreignKey: 'hackathon_id' })
     }
   }
   Task.init(
     {
-      name: DataTypes.STRING,
-      description: DataTypes.STRING,
+      name: DataTypes.TEXT,
+      description: DataTypes.TEXT,
       hackathonId: {
         type: DataTypes.INTEGER,
         field: 'hackathon_id',
@@ -24,7 +26,12 @@ module.exports = (sequelize, DataTypes) => {
         field: 'max_score',
       },
       type: DataTypes.STRING,
+      answer: DataTypes.TEXT,
+      wrong1: DataTypes.TEXT,
+      wrong2: DataTypes.TEXT,
+      wrong3: DataTypes.TEXT,
     },
+
     {
       sequelize,
       modelName: 'Task',

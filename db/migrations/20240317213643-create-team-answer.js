@@ -10,12 +10,24 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
       },
       team_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'teams',
+          key: 'id',
+        },
       },
       task_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'tasks',
+          key: 'id',
+        },
       },
       answer: {
         type: Sequelize.STRING,

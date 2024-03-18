@@ -15,7 +15,9 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
 })
 
 HackathonAPIRouter.post('/hackathon', async (req, res) => {
-  const { name, type, description, start, end } = req.body
+  const {
+    name, type, description, start, end,
+  } = req.body
   if (!name || !type || !description || !start || !end) {
     res.status(400)
     return res.json({ error: 'Some data not specified. name, type, description, start, end' })
@@ -44,7 +46,9 @@ HackathonAPIRouter.post('/hackathon', async (req, res) => {
 
 HackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
   const hackathonId = req.params.id
-  const { name, type, description, start, end } = req.body
+  const {
+    name, type, description, start, end,
+  } = req.body
   if (req.user.role !== 'admin') {
     res.status(403)
     return res.json({ error: 'You are not allowed to do this action' })

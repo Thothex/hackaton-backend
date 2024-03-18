@@ -8,6 +8,7 @@
     "dev": "nodemon server.js --ext js,jsx,json,css --ignore sessions",
     "db-create": "npx sequelize db:create",
     "db-drop": "npx sequelize db:drop",
+    "db-migrate-undo": "npx sequelize db:migrate:undo:all ",
     "db-migrate": "npx sequelize db:migrate",
     "db-seed": "npx sequelize db:seed:all",
     "db:up": "npx sequelize db:migrate"
