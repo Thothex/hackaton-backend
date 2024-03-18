@@ -13,7 +13,7 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      login: {
+      username: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
@@ -22,16 +22,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      team_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      score: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
-      status: {
+      role: {
         type: Sequelize.STRING,
         allowNull: true,
       },
