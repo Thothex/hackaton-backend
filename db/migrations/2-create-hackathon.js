@@ -9,19 +9,41 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       type: {
         type: Sequelize.STRING,
       },
-      description: {
+      category: {
         type: Sequelize.STRING,
+      },
+      audience: {
+        type: Sequelize.STRING,
+      },
+      organizer_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
+      },
+      rules: {
+        type: Sequelize.TEXT,
+      },
+      prize: {
+        type: Sequelize.TEXT,
+      },
+      description: {
+        type: Sequelize.TEXT,
       },
       start: {
         type: Sequelize.DATE,
       },
       end: {
         type: Sequelize.DATE,
+      },
+      private: {
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,

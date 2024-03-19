@@ -9,19 +9,35 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       hackathon_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'hackathons',
+          key: 'id',
+        },
       },
       max_score: {
         type: Sequelize.INTEGER,
       },
       type: {
         type: Sequelize.STRING,
+      },
+      answer: {
+        type: Sequelize.TEXT,
+      },
+      wrong1: {
+        type: Sequelize.TEXT,
+      },
+      wrong2: {
+        type: Sequelize.TEXT,
+      },
+      wrong3: {
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

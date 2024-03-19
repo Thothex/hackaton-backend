@@ -10,9 +10,17 @@ module.exports = {
       },
       team_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'teams',
+          key: 'id',
+        },
       },
       hackathon_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'hackathons',
+          key: 'id',
+        },
       },
       createdAt: {
         allowNull: false,
