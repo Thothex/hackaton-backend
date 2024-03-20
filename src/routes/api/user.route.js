@@ -6,7 +6,7 @@ UserAPIRouter.get('/user', (req, res) => {
     const userWithoutPassword = { ...user.dataValues, password: undefined }
     res.send(userWithoutPassword)
   } else {
-    res.status(401).send({ eror: 'Unauthorized' })
+    res.status(401).json({ error: 'Unauthorized' })
   }
 })
 
