@@ -10,7 +10,8 @@ const LoginAPIRouter = require('./src/routes/api/login.routes')
 const { default: UserAPIRouter } = require('./src/routes/api/user.route')
 const HackathonAPIRouter = require('./src/routes/api/hackathon.routes')
 const EditHackathonAPIRouter = require('./src/routes/api/edit.hackathon.routes')
-const TaskApiRouter = require('./src/routes/api/task.routes');
+const TaskApiRouter = require('./src/routes/api/task.routes')
+
 const app = express()
 const PORT = 3000
 
@@ -25,6 +26,6 @@ app.use('/api', LoginAPIRouter)
 app.use('/api', HackathonAPIRouter)
 app.use('/api', passport.authenticate('jwt', { session: false }), UserAPIRouter)
 app.use('/api', passport.authenticate('jwt', { session: false }), EditHackathonAPIRouter)
-app.use('/api',passport.authenticate('jwt', { session: false }), TaskApiRouter)
+app.use('/api', passport.authenticate('jwt', { session: false }), TaskApiRouter)
 
 app.listen(PORT, () => console.log(`Server is up on http://localhost:${PORT}`))

@@ -14,8 +14,8 @@ module.exports = {
       type: {
         type: Sequelize.STRING,
       },
-      category: {
-        type: Sequelize.STRING,
+      category_id: {
+        type: Sequelize.INTEGER,
       },
       audience: {
         type: Sequelize.STRING,
