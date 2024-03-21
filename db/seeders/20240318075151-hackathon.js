@@ -7,10 +7,10 @@ module.exports = {
         type: 'team',
         description: 'Scientific digest! Participants will have the opportunity to act as real scientists',
         start: new Date(),
-        category:'science',
-        audience:'14 - 18 years,university',
-        rules:'Time to solve the hackathon: 24 hours. The solution will need to be attached as a file',
-        prize:'1000 hyperpoints',
+        category_id: 1,
+        audience: '14 - 18 years,university',
+        rules: 'Time to solve the hackathon: 24 hours. The solution will need to be attached as a file',
+        prize: '1000 hyperpoints',
         private: false,
         end: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
         createdAt: new Date(),
@@ -20,10 +20,10 @@ module.exports = {
         name: 'Rapid Dash through Articles and Journals',
         type: 'person',
         description: 'Your first scientific article in 24 hours!',
-        category:'science',
-        audience:'14 - 18 years,school',
-        rules:'Time to solve the hackathon: 24 hours. The solution will need to be attached as a file',
-        prize:'1000000 hyperpoints',
+        category_id: 1,
+        audience: '14 - 18 years,school',
+        rules: 'Time to solve the hackathon: 24 hours. The solution will need to be attached as a file',
+        prize: '1000000 hyperpoints',
         private: false,
         start: new Date(),
         end: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
@@ -35,7 +35,7 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('hackathons', null, {});
+    await queryInterface.bulkDelete('hackathons', null, {})
     /**
      * Add commands to revert seed here.
      *

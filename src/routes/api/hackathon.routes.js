@@ -1,12 +1,33 @@
 const HackathonAPIRouter = require('express').Router()
-const { where } = require('sequelize')
-const { Hackathon } = require('../../../db/models/index')
+const { Hackathon, Categories, HackathonsOrganizations, Organizations } = require('../../../db/models/index')
 
 HackathonAPIRouter.get('/hackathon', async (req, res) => {
   try {
-    const hackathons = await Hackathon.findAll()
+    const hackathons = await Hackathon.findAll({
+      include: [
+        {
+          attributes: ['name'],
+          model: Categories,
+          as: 'category',
+        },
+        {
+          model: Organizations,
+          as: 'organizations',
+          attributes: ['id', 'name'],
+          through: {
+            model: HackathonsOrganizations,
+            attributes: [],
+          },
+        },
+      ],
+    })
+    const plainHackathons = hackathons.map((hackathon) => ({
+      ...hackathon.toJSON(),
+      // category: hackathon.category.name,
+      category_id: undefined,
+    }))
     res.status(200)
-    res.json(hackathons)
+    res.json(plainHackathons)
   } catch (error) {
     console.error('error: ', error)
     res.status(500)
@@ -15,19 +36,40 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
 })
 
 HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params
   console.log('id: ----------', id)
   try {
-    const hackathon = await Hackathon.findByPk(id);
-    console.log(hackathon)
+    const hackathon = await Hackathon.findByPk(id, {
+      include: [
+        {
+          attributes: ['id', 'name'],
+          model: Categories,
+          as: 'category',
+        },
+        {
+          model: Organizations,
+          as: 'organizations',
+          attributes: ['id', 'name'],
+          through: {
+            model: HackathonsOrganizations,
+            attributes: [],
+          },
+        },
+      ],
+    })
     if (!hackathon) {
-      res.status(404).json({ error: "Hackathon not found" });
-      return;
+      res.status(404).json({ error: 'Hackathon not found' })
+      return
     }
-    res.status(200).json(hackathon);
+    const plainHackathon = {
+      ...hackathon.toJSON(),
+      // category: hackathon.category.name,
+      category_id: undefined,
+    }
+    res.status(200).json(plainHackathon)
   } catch (error) {
     console.error('error: ', error)
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message })
   }
 })
 
