@@ -23,7 +23,7 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
     })
     const plainHackathons = hackathons.map((hackathon) => ({
       ...hackathon.toJSON(),
-      category: hackathon.category.name,
+      // category: hackathon.category.name,
       category_id: undefined,
     }))
     res.status(200)
@@ -42,7 +42,7 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
     const hackathon = await Hackathon.findByPk(id, {
       include: [
         {
-          attributes: ['name'],
+          attributes: ['id', 'name'],
           model: Categories,
           as: 'category',
         },
@@ -63,7 +63,7 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
     }
     const plainHackathon = {
       ...hackathon.toJSON(),
-      category: hackathon.category.name,
+      // category: hackathon.category.name,
       category_id: undefined,
     }
     res.status(200).json(plainHackathon)
