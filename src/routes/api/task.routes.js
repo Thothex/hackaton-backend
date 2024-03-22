@@ -1,13 +1,12 @@
 const { Task, Hackathon } = require('../../../db/models');
 const TaskApiRouter = require('express').Router();
 
-TaskApiRouter.route('/hackathon/:hackathonId/task/:taskId')
+TaskApiRouter.route('/hackathon/:hackathonId/tasks')
     .get(async (req, res) => {
         try {
-            const { hackathonId, taskId } = req.params;
-            const hackathon = await Hackathon.findByPk(+hackathonId);
-            const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId }});
-            res.status(200).json(task);
+            const { hackathonId } = req.params;
+            const tasks = await Task.findAll({where:{hackathonId}, raw:true});
+            res.status(200).json(tasks);
         } catch (err) {
             res.status(500).json(err);
         }
