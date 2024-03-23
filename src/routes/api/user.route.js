@@ -18,7 +18,6 @@ UserAPIRouter.get('/users', async (req, res) => {
       raw: true,
       where: { role: 'user' }
     });
-    console.log(users)
     res.status(200).json(users)
   } catch (error) {
     console.log(error)
