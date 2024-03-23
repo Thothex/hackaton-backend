@@ -63,12 +63,13 @@ TaskApiRouter.route('/hackathon/:hackathonId/tasks')
         return res.status(404).json({ error: 'Hackathon not found' })
       }
 
-      const { name, description, max_score, type, answer, wrong1, wrong2, wrong3 } = req.body
+
+      const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body
       const newTask = await Task.create({
         name,
         description,
         hackathon_id: hackathon.id,
-        max_score,
+        maxScore,
         type,
         answer,
         wrong1,
