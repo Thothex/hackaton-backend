@@ -35,7 +35,7 @@ TeamApiRouter.get('/team/:hackathonId/:userId', async (req, res) => {
     try {
         const { hackathonId, userId } = req.params;
 
-        // Найти все команды для данного хакатона
+
         const hackathonTeams = await HackathonTeam.findAll({
             where: { hackathon_id: hackathonId },
             raw: true,
@@ -43,7 +43,7 @@ TeamApiRouter.get('/team/:hackathonId/:userId', async (req, res) => {
         });
         const teamIds = hackathonTeams.map(hackathonTeam => hackathonTeam.team_id);
 
-        // Найти команду пользователя среди найденных команд
+
         const teamUser = await TeamUsers.findOne({
             where: {
                 team_id: teamIds,
@@ -51,29 +51,29 @@ TeamApiRouter.get('/team/:hackathonId/:userId', async (req, res) => {
             }
         });
 
-        // Если пользователь не состоит ни в одной команде для данного хакатона, вернуть ошибку 404
+
         if (!teamUser) {
             return res.status(404).json({ message: 'User is not a member of any team for this hackathon' });
         }
 
-        // Получить идентификатор команды, в которой состоит пользователь
+
         const teamId = teamUser.team_id;
         const team = await Team.findOne({ where: { id: teamId }, raw: true });
 
-        // Найти всех пользователей в команде
+
         const usersTeam = await TeamUsers.findAll({ where: { teamId } });
 
-        // Получить идентификаторы всех пользователей в команде
+
         const userIds = usersTeam.map(userTeam => userTeam.user_id);
 
-        // Найти информацию о пользователях по их идентификаторам
+
         const foundUsers = await User.findAll({
             where: { id: userIds },
             raw: true,
             attributes: ['id', 'email', 'username']
         });
 
-        // Создать массив с информацией о пользователях и их роли в команде
+
         const usersWithTeamInfo = foundUsers.map(user => {
             const teamInfo = usersTeam.find(userTeam => userTeam.user_id === user.id);
             return {
@@ -85,7 +85,6 @@ TeamApiRouter.get('/team/:hackathonId/:userId', async (req, res) => {
             };
         });
 
-        // Вернуть информацию о пользователях и их ролях в команде
         res.status(200).json({ team, teamUsers: usersWithTeamInfo });
     } catch (err) {
         // В случае ошибки вернуть соответствующий статус и сообщение об ошибке
