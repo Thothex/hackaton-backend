@@ -38,6 +38,7 @@ TaskApiRouter.put('/task/:taskId', async (req, res) => {
 
   res.status(200).json({ id: taskId })
 })
+
 TaskApiRouter.route('/hackathon/:hackathonId/tasks')
   .get(async (req, res) => {
     try {
@@ -61,6 +62,7 @@ TaskApiRouter.route('/hackathon/:hackathonId/tasks')
       if (!hackathon) {
         return res.status(404).json({ error: 'Hackathon not found' })
       }
+
 
       const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body
       const newTask = await Task.create({
