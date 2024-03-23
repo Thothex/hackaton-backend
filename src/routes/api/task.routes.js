@@ -38,14 +38,12 @@ TaskApiRouter.put('/task/:taskId', async (req, res) => {
 
   res.status(200).json({ id: taskId })
 })
-
-TaskApiRouter.route('/hackathon/:hackathonId/task/:taskId')
+TaskApiRouter.route('/hackathon/:hackathonId/tasks')
   .get(async (req, res) => {
     try {
-      const { hackathonId, taskId } = req.params
-      const hackathon = await Hackathon.findByPk(+hackathonId)
-      const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId } })
-      res.status(200).json(task)
+      const { hackathonId } = req.params
+      const tasks = await Task.findAll({ where: { hackathonId }, raw: true })
+      res.status(200).json(tasks)
     } catch (err) {
       res.status(500).json(err)
     }
@@ -53,10 +51,10 @@ TaskApiRouter.route('/hackathon/:hackathonId/task/:taskId')
 
   .post(async (req, res) => {
     try {
-      //   if (req.user.role !== 'admin') {
-      //     res.status(403).json({ error: 'You are not allowed to do this action' })
-      //     return
-      //   }
+      if (req.user.role !== 'admin') {
+        res.status(403).json({ error: 'You are not allowed to do this action' })
+        return
+      }
 
       const { hackathonId } = req.params
       const hackathon = await Hackathon.findByPk(+hackathonId)
@@ -64,14 +62,17 @@ TaskApiRouter.route('/hackathon/:hackathonId/task/:taskId')
         return res.status(404).json({ error: 'Hackathon not found' })
       }
 
-      const { name, description, maxScore, type, questions } = req.body
+      const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body
       const newTask = await Task.create({
         name,
         description,
         hackathon_id: hackathon.id,
-        maxScore: maxScore || 100,
+        maxScore,
         type,
-        questions,
+        answer,
+        wrong1,
+        wrong2,
+        wrong3,
       })
 
       res.status(200).json(newTask)
