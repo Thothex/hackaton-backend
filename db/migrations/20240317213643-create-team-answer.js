@@ -30,7 +30,7 @@ module.exports = {
         },
       },
       answer: {
-        type: Sequelize.STRING,
+        type: Sequelize.JSON,
       },
       score: {
         type: Sequelize.INTEGER,

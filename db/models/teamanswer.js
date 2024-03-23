@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         field: 'task_id',
       },
-      answer: DataTypes.STRING,
+      answer: DataTypes.JSON,
       score: DataTypes.INTEGER,
     },
     {
