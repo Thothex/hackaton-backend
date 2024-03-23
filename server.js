@@ -13,7 +13,7 @@ const EditHackathonAPIRouter = require('./src/routes/api/edit.hackathon.routes')
 const TaskApiRouter = require('./src/routes/api/task.routes')
 const CategoryApiRouter = require('./src/routes/api/categories.router')
 const OrganizationApiRouter = require('./src/routes/api/organizations.router')
-
+const TeamApiRouter = require('./src/routes/api/team.routes')
 const app = express()
 const PORT = 3000
 
@@ -31,5 +31,6 @@ app.use('/api', OrganizationApiRouter)
 app.use('/api', passport.authenticate('jwt', { session: false }), UserAPIRouter)
 app.use('/api', passport.authenticate('jwt', { session: false }), EditHackathonAPIRouter)
 app.use('/api', passport.authenticate('jwt', { session: false }), TaskApiRouter)
+app.use('/api', passport.authenticate('jwt', { session: false }), TeamApiRouter)
 
 app.listen(PORT, () => console.log(`Server is up on http://localhost:${PORT}`))
