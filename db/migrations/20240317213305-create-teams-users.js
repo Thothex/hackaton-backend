@@ -18,6 +18,9 @@ module.exports = {
       is_captain: {
         type: Sequelize.BOOLEAN,
       },
+      accepted: {
+        type: Sequelize.BOOLEAN,
+      },
       team_id: {
         type: Sequelize.INTEGER,
         references: {

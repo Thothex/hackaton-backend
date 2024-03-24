@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         field: 'user_id',
       },
+        accepted:{
+            type: DataTypes.BOOLEAN,
+            field: 'accepted',
+        },
       isCaptain: {
         type: DataTypes.BOOLEAN,
         field: 'is_captain',
