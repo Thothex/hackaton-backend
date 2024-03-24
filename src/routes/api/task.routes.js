@@ -1,111 +1,149 @@
-const { Task, Hackathon } = require('../../../db/models');
-const TaskApiRouter = require('express').Router();
+const TaskApiRouter = require('express').Router()
+const { Task, Hackathon } = require('../../../db/models')
 
-TaskApiRouter.route('/hackathon/:hackathonId/task/:taskId')
-    .get(async (req, res) => {
-        try {
-            const { hackathonId, taskId } = req.params;
-            const hackathon = await Hackathon.findByPk(+hackathonId);
-            const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId }});
-            res.status(200).json(task);
-        } catch (err) {
-            res.status(500).json(err);
-        }
+TaskApiRouter.post('/hackathon/:hackathonId/task', async (req, res) => {
+  console.log('req.body', req.body)
+  const { hackathonId } = req.params
+  const { name, description, maxScore, type } = req.body
+  const task = await Task.create({
+    name,
+    description,
+    hackathon_id: hackathonId,
+    maxScore: maxScore || 100,
+    type,
+  })
+
+  res.status(201)
+  res.json({ id: task.id })
+})
+
+TaskApiRouter.put('/task/:taskId', async (req, res) => {
+  const { taskId } = req.params
+  const { id, name, description, maxScore, type, answers, hackathonId } = req.body
+  try {
+    const task = await Task.findByPk(id)
+    console.log('task', task)
+    task.update({
+      name,
+      description,
+      hackathon_id: hackathonId,
+      maxScore: +maxScore,
+      type,
+      answers,
     })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 
-    .post(async (req, res) => {
-        try {
-            if (req.user.role !== 'admin') {
-                res.status(403).json({ error: 'You are not allowed to do this action' });
-                return;
-            }
+  res.status(200).json({ id: taskId })
+})
 
-            const { hackathonId } = req.params;
-            const hackathon = await Hackathon.findByPk(+hackathonId);
-            if (!hackathon) {
-                return res.status(404).json({ error: 'Hackathon not found' });
-            }
+TaskApiRouter.route('/hackathon/:hackathonId/tasks')
+  .get(async (req, res) => {
+    try {
+      const { hackathonId } = req.params
+      const tasks = await Task.findAll({ where: { hackathonId }, raw: true })
+      res.status(200).json(tasks)
+    } catch (err) {
+      res.status(500).json(err)
+    }
+  })
 
-            const { name, description, max_score, type, answer, wrong1, wrong2, wrong3 } = req.body;
-            const newTask = await Task.create({
-                name,
-                description,
-                hackathon_id: hackathon.id,
-                max_score,
-                type,
-                answer,
-                wrong1,
-                wrong2,
-                wrong3
-            });
+  .post(async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        res.status(403).json({ error: 'You are not allowed to do this action' })
+        return
+      }
 
-            res.status(200).json(newTask);
-        } catch (err) {
-            res.status(500).json(err);
-        }
-    })
+      const { hackathonId } = req.params
+      const hackathon = await Hackathon.findByPk(+hackathonId)
+      if (!hackathon) {
+        return res.status(404).json({ error: 'Hackathon not found' })
+      }
 
-    .put(async (req, res) => {
-        try {
-            if (req.user.role !== 'admin') {
-                res.status(403).json({ error: 'You are not allowed to do this action' });
-                return;
-            }
 
-            const { hackathonId, taskId } = req.params;
-            const hackathon = await Hackathon.findByPk(+hackathonId);
-            if (!hackathon) {
-                return res.status(404).json({ error: 'Hackathon not found' });
-            }
+      const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body
+      const newTask = await Task.create({
+        name,
+        description,
+        hackathon_id: hackathon.id,
+        maxScore,
+        type,
+        answer,
+        wrong1,
+        wrong2,
+        wrong3,
+      })
 
-            const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId } });
-            if (!task) {
-                return res.status(404).json({ error: 'Task not found' });
-            }
+      res.status(200).json(newTask)
+    } catch (err) {
+      res.status(500).json(err)
+    }
+  })
 
-            const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body;
+  .put(async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        res.status(403).json({ error: 'You are not allowed to do this action' })
+        return
+      }
 
-            await task.update({
-                name,
-                description,
-                maxScore,
-                type,
-                answer,
-                wrong1,
-                wrong2,
-                wrong3
-            });
+      const { hackathonId, taskId } = req.params
+      const hackathon = await Hackathon.findByPk(+hackathonId)
+      if (!hackathon) {
+        return res.status(404).json({ error: 'Hackathon not found' })
+      }
 
-            res.status(200).json(task);
-        } catch (err) {
-            res.status(500).json(err);
-        }
-    })
+      const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId } })
+      if (!task) {
+        return res.status(404).json({ error: 'Task not found' })
+      }
 
-    .delete(async (req, res) => {
-        try {
-            if (req.user.role !== 'admin') {
-                res.status(403).json({ error: 'You are not allowed to do this action' });
-                return;
-            }
+      const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body
 
-            const { hackathonId, taskId } = req.params;
-            const hackathon = await Hackathon.findByPk(+hackathonId);
-            if (!hackathon) {
-                return res.status(404).json({ error: 'Hackathon not found' });
-            }
+      await task.update({
+        name,
+        description,
+        maxScore,
+        type,
+        answer,
+        wrong1,
+        wrong2,
+        wrong3,
+      })
 
-            const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId } });
-            if (!task) {
-                return res.status(404).json({ error: 'Task not found' });
-            }
+      res.status(200).json(task)
+    } catch (err) {
+      res.status(500).json(err)
+    }
+  })
 
-            await task.destroy();
+  .delete(async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        res.status(403).json({ error: 'You are not allowed to do this action' })
+        return
+      }
 
-            res.status(200).end();
-        } catch (err) {
-            res.status(500).json(err);
-        }
-    });
+      const { hackathonId, taskId } = req.params
+      const hackathon = await Hackathon.findByPk(+hackathonId)
+      if (!hackathon) {
+        return res.status(404).json({ error: 'Hackathon not found' })
+      }
 
-module.exports = TaskApiRouter;
+      const task = await Task.findOne({ where: { hackathon_id: hackathon.id, id: +taskId } })
+      if (!task) {
+        return res.status(404).json({ error: 'Task not found' })
+      }
+
+      await task.destroy()
+
+      res.status(200).end()
+    } catch (err) {
+      res.status(500).json(err)
+    }
+  })
+
+module.exports = TaskApiRouter

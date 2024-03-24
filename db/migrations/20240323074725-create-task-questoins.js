@@ -1,26 +1,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('team_answers', {
+    await queryInterface.createTable('task_questoins', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      user_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
+      uuid: {
+        type: Sequelize.STRING,
       },
-      team_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'teams',
-          key: 'id',
-        },
+      text: {
+        type: Sequelize.STRING,
       },
       task_id: {
         type: Sequelize.INTEGER,
@@ -29,11 +21,11 @@ module.exports = {
           key: 'id',
         },
       },
-      answer: {
-        type: Sequelize.JSON,
-      },
       score: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
+      },
+      is_rightAnswer: {
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
@@ -46,6 +38,6 @@ module.exports = {
     })
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('TeamAnswers')
+    await queryInterface.dropTable('taskQuestoins')
   },
 }

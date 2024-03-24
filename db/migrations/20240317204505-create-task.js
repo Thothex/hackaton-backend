@@ -30,6 +30,9 @@ module.exports = {
       answer: {
         type: Sequelize.TEXT,
       },
+      answers: {
+        type: Sequelize.JSON,
+      },
       wrong1: {
         type: Sequelize.TEXT,
       },

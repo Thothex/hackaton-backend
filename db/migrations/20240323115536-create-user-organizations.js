@@ -1,7 +1,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('team_answers', {
+    await queryInterface.createTable('user_organizations', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,29 +10,8 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
       },
-      team_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'teams',
-          key: 'id',
-        },
-      },
-      task_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'tasks',
-          key: 'id',
-        },
-      },
-      answer: {
-        type: Sequelize.JSON,
-      },
-      score: {
+      organization_id: {
         type: Sequelize.INTEGER,
       },
       createdAt: {
@@ -46,6 +25,6 @@ module.exports = {
     })
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('TeamAnswers')
+    await queryInterface.dropTable('user_organizations')
   },
 }

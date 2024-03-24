@@ -4,7 +4,7 @@ const organizations = require('./organizations')
 module.exports = (sequelize, DataTypes) => {
   class Hackathon extends Model {
     static associate({ Task, Team, User, Categories, Organizations, HackathonsOrganizations }) {
-      Hackathon.hasMany(Task, { foreignKey: 'hackathon_id' })
+      Hackathon.hasMany(Task, { foreignKey: 'hackathon_id', as: 'tasks' })
       Hackathon.belongsToMany(Team, { through: 'HackathonTeam', foreignKey: 'hackathon_id', otherKey: 'team_id' })
       Hackathon.belongsTo(User, { foreignKey: 'organizer_id' })
       Hackathon.belongsTo(Categories, { foreignKey: 'category_id', as: 'category' })
