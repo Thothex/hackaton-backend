@@ -1,38 +1,35 @@
 const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-  class TeamAnswer extends Model {
+  class TaskQuestoins extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsTo(models.Task, {
+        foreignKey: 'taskId',
+        as: 'task',
+      })
     }
   }
-  TeamAnswer.init(
+  TaskQuestoins.init(
     {
-      userId: {
-        type: DataTypes.INTEGER,
-        field: 'user_id',
-      },
-      teamId: {
-        type: DataTypes.INTEGER,
-        field: 'team_id',
-      },
+      uuid: DataTypes.STRING,
+      text: DataTypes.STRING,
       taskId: {
         type: DataTypes.INTEGER,
         field: 'task_id',
       },
-      answer: DataTypes.JSON,
-      score: DataTypes.INTEGER,
+      score: DataTypes.STRING,
+      isRightAnswer: DataTypes.BOOLEAN,
     },
     {
       sequelize,
-      modelName: 'TeamAnswer',
-      tableName: 'team_answers',
+      modelName: 'TaskQuestoins',
+      tableName: 'task_questoins',
     },
   )
-  return TeamAnswer
+  return TaskQuestoins
 }

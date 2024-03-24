@@ -1,5 +1,5 @@
 const HackathonAPIRouter = require('express').Router()
-const { Hackathon, Categories, HackathonsOrganizations, Organizations } = require('../../../db/models/index')
+const { Hackathon, Categories, HackathonsOrganizations, Organizations, Task } = require('../../../db/models/index')
 
 HackathonAPIRouter.get('/hackathon', async (req, res) => {
   try {
@@ -54,6 +54,10 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
             model: HackathonsOrganizations,
             attributes: [],
           },
+        },
+        {
+          model: Task,
+          as: 'tasks',
         },
       ],
     })
