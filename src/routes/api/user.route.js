@@ -1,4 +1,3 @@
-const {User} = require('../../../db/models')
 import getUserByAdmin from '../../lib/getUserByAdmin'
 
 const UserAPIRouter = require('express').Router()
@@ -6,7 +5,6 @@ const UserAPIRouter = require('express').Router()
 const fileMiddleware = require('../../../middleware/file')
 
 const { User, Organizations, UserOrganizations } = require('../../../db/models')
-
 
 UserAPIRouter.get('/user', (req, res) => {
   const { user } = req
@@ -18,17 +16,17 @@ UserAPIRouter.get('/user', (req, res) => {
   }
 })
 UserAPIRouter.get('/users', async (req, res) => {
-  try{
+  try {
     const users = await User.findAll({
       attributes: ['email', 'username'],
       raw: true,
-      where: { role: 'user' }
-    });
+      where: { role: 'user' },
+    })
     res.status(200).json(users)
   } catch (error) {
     console.log(error)
     res.status(500)
-    res.json({error: error.message})
+    res.json({ error: error.message })
   }
 })
 
@@ -48,7 +46,6 @@ UserAPIRouter.put('/user/:id', fileMiddleware.single('avatar'), async (req, res)
     res.status(500).json({ error: 'Server error' })
   }
 })
-
 
 UserAPIRouter.get('/users', async (req, res) => {
   const { user } = req
@@ -102,5 +99,4 @@ UserAPIRouter.patch('/user/:id', async (req, res) => {
   res.status(200).json(updatedUser)
 })
 
-export default UserAPIRouter
-
+module.exports = UserAPIRouter
