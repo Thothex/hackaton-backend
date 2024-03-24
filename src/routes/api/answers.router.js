@@ -45,6 +45,8 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), a
         res.send('File uploaded successfully.')
       }
     })
+    const fileUrlJSON = JSON.stringify({ fileUrl: `${baseUrl}/${fileName}` })
+    setTeamAnswers({ userAnswersJSON: fileUrlJSON, taskId, userId: req.user.id })
   }
   if (taskType === 'many-answers') {
     // сравниваем ответы из userAnswers с правильными ответами из базы
