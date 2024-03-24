@@ -11,7 +11,8 @@
     "db-migrate-undo": "npx sequelize db:migrate:undo:all ",
     "db-migrate": "npx sequelize db:migrate",
     "db-seed": "npx sequelize db:seed:all",
-    "db:up": "npx sequelize db:migrate"
+    "db:up": "npx sequelize db:migrate",
+    "db:reset": "npx sequelize db:drop && npx sequelize db:create && npx sequelize db:migrate && npx sequelize db:seed:all"
   },
   "dependencies": {
     "@babel/core": "^7.22.1",
