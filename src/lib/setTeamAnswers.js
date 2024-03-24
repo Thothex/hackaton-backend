@@ -1,7 +1,6 @@
 const { TeamAnswer } = require('../../db/models')
 
 const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score }) => {
-  console.log('score', score)
   try {
     const teamAnswers = await TeamAnswer.findOne({
       // TODO: возможно добавить поиск по teamId, когда он будет
@@ -15,7 +14,6 @@ const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score }) => {
     } else {
       scoreCount = null
     }
-    console.log('scoreCount', scoreCount)
     if (teamAnswers) {
       const result = await teamAnswers.update({
         answer: userAnswersJSON,

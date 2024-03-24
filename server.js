@@ -14,6 +14,8 @@ const TaskApiRouter = require('./src/routes/api/task.routes')
 const CategoryApiRouter = require('./src/routes/api/categories.router')
 const OrganizationApiRouter = require('./src/routes/api/organizations.router')
 const UserAnswersAPIRouter = require('./src/routes/api/answers.router')
+const configureSockets = require('./src/lib/wsocket')
+const { configure, getWebSocketConnection } = require('./src/lib/wsocket')
 
 const app = express()
 const PORT = 3000
@@ -34,4 +36,7 @@ app.use('/api', passport.authenticate('jwt', { session: false }), EditHackathonA
 app.use('/api', passport.authenticate('jwt', { session: false }), TaskApiRouter)
 app.use('/api', passport.authenticate('jwt', { session: false }), UserAnswersAPIRouter)
 
-app.listen(PORT, () => console.log(`Server is up on http://localhost:${PORT}`))
+const server = app.listen(PORT, () => {
+  console.log(`Server is up on http://localhost:${PORT}`)
+  configure(server)
+})

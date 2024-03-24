@@ -2,10 +2,12 @@ const UserAnswersAPIRouter = require('express').Router()
 const fs = require('fs')
 const multer = require('multer')
 const path = require('path')
+const WebSocket = require('ws')
 const { Task } = require('../../../db/models')
 
 const upload = multer()
 const { default: setTeamAnswers } = require('../../lib/setTeamAnswers')
+const { configure, getWebSocketConnection } = require('../../lib/wsocket')
 
 UserAnswersAPIRouter.route('/answers?hakathonId=123').get(async (req, res) => {
   // должен отдавать по умолчанию ответы запрашивающего
@@ -15,6 +17,17 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), a
   const { taskType } = req.params
   const { taskId, hackathonId, userAnswers } = req.body
   const userAnswersJSON = userAnswers ? JSON.stringify(userAnswers) : null
+
+  /* ------------------------------------------ */
+  //  Попытка отправить сообщение в websocket   //
+  /* ------------------------------------------ */
+  const wsConnections = getWebSocketConnection()
+  // см вызов внизу перед res.send
+
+  /* ------------------------------------------ */
+  //    Конец логики отправки сообщений в ws    //
+  /* ------------------------------------------ */
+
   if (taskType === 'document') {
     const fileName = req.file.originalname
     const baseUrl = path.join(__dirname, '..', '..', '..', 'uploads', 'answers', '123', '312', taskId)
@@ -80,6 +93,19 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), a
   if (taskType === 'input') {
     // TODO см в файле функции setTeamAnswers
     const result = await setTeamAnswers({ userAnswersJSON, taskId, userId: req.user.id })
+
+    if (wsConnections) {
+      wsConnections.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(
+            JSON.stringify({
+              platform: 'Был получен ответ от команды, запросите обновление дашборда',
+              hackathonId,
+            }),
+          )
+        }
+      })
+    }
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 })
