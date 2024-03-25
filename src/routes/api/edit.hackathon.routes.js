@@ -36,6 +36,8 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
       organization_id: org.id,
     }))
 
+    console.log('hackathonOrganizations: ', hackathonOrganizations)
+
     await HackathonsOrganizations.bulkCreate(hackathonOrganizations)
     const createdHackathon = await Hackathon.findByPk(newHackathon.id, {
       include: [
@@ -101,6 +103,14 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         where: { id: Number(hackathonId) },
       },
     )
+
+    const hackathonOrganizations = organizations.map((org) => ({
+      hackathon_id: hackathon.id,
+      organization_id: org.id,
+    }))
+    await HackathonsOrganizations.bulkCreate(hackathonOrganizations)
+    console.log('hackathonOrganizations: ', hackathonOrganizations)
+
     const updatedHackathon = await Hackathon.findByPk(hackathonId, {
       include: [
         {
