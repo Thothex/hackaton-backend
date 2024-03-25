@@ -9,7 +9,9 @@ const serverConfig = (app) => {
   app.use(
     express.static('public', {
       setHeaders: (res, filePath) => {
-        res.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`)
+        const fileName = path.basename(filePath)
+        const encodedFileName = encodeURIComponent(fileName)
+        res.setHeader('Content-Disposition', `attachment; filename=${encodedFileName}`)
       },
     }),
   )
