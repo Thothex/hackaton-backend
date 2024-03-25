@@ -7,7 +7,7 @@ const getUserByAdmin = async (id) => {
     where: {
       id,
     },
-    attributes: ['id', 'username', 'email', 'role'],
+    attributes: ['id', 'username', 'email', 'role', 'isOrg'],
     include: [
       {
         model: Organizations,

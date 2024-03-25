@@ -26,6 +26,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      is_org: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+      },
       status: {
         type: Sequelize.STRING,
         allowNull: true,
