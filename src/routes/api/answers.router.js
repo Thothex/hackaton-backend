@@ -1,21 +1,60 @@
 const UserAnswersAPIRouter = require('express').Router()
 const fs = require('fs')
-const multer = require('multer')
 const path = require('path')
 const WebSocket = require('ws')
-const { Task } = require('../../../db/models')
+const { Task, TeamAnswer, Hackathon } = require('../../../db/models')
 
-const upload = multer()
 const { default: setTeamAnswers } = require('../../lib/setTeamAnswers')
 const { configure, getWebSocketConnection } = require('../../lib/wsocket')
+const fileMiddleware = require('../../../middleware/file')
 
-UserAnswersAPIRouter.route('/answers?hakathonId=123').get(async (req, res) => {
-  // должен отдавать по умолчанию ответы запрашивающего
-  // по хакатону из квери параметров
+UserAnswersAPIRouter.route('/answers').get(async (req, res) => {
+  // пока так:
+  // по /answers получаем все хакатоны, где организатор наш юзер
+  // если в query передаем id хакатона (?hackathonId=123), он отдает все ответы по этому хакатону
+  // если передаем id хакатона и команды (?hackathonId=3&teamId=1), отдает ответы хакатона определенной команды
+  try {
+    const { user } = req
+    const { hackathonId, teamId } = req.query
+
+    if (!hackathonId) {
+      const hackathons = await Hackathon.findAll({
+        where: { organizer_id: user.id },
+        raw: true,
+      })
+      return res.json({ hackathons })
+    }
+    const taskIds = await Task.findAll({
+      where: { hackathon_id: hackathonId },
+      attributes: ['id'],
+      raw: true,
+    })
+    const idsArray = taskIds.map((task) => task.id)
+
+    if (teamId) {
+      const answers = await TeamAnswer.findAll({
+        where: {
+          task_id: idsArray,
+          team_id: teamId,
+        },
+        raw: true,
+      })
+      return res.json({ answers })
+    }
+
+    const answers = await TeamAnswer.findAll({
+      where: { task_id: idsArray },
+      raw: true,
+    })
+    return res.json({ answers })
+  } catch (error) {
+    return res.status(500).json(error)
+  }
 })
-UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), async (req, res) => {
+
+UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('file'), async (req, res) => {
   const { taskType } = req.params
-  const { taskId, hackathonId, userAnswers } = req.body
+  const { taskId, hackathonId, userAnswers, teamId } = req.body
   const userAnswersJSON = userAnswers ? JSON.stringify(userAnswers) : null
 
   /* ------------------------------------------ */
@@ -30,12 +69,12 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), a
 
   if (taskType === 'document') {
     const fileName = req.file.originalname
-    const baseUrl = path.join(__dirname, '..', '..', '..', 'uploads', 'answers', '123', '312', taskId)
+    const basePath = path.join('answers', String(hackathonId), String(teamId), String(taskId))
 
-    if (!fs.existsSync(baseUrl)) {
-      fs.mkdirSync(baseUrl, { recursive: true })
-    }
-    const fileData = req.file.buffer
+    // if (!fs.existsSync(baseUrl)) {
+    //   fs.mkdirSync(baseUrl, { recursive: true })
+    // }
+    // const fileData = req.file.buffer
 
     // TODO: !!!!!! путь должен быть таким, чтобы другой человек не перезатёр,
     // т.е.в урл должена быть директория
@@ -49,17 +88,22 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), a
     // записывать в свойство file/answers/text в зависимости от типа задания
     // (будет приходить с фронта))
 
-    fs.writeFile(`${baseUrl}/${fileName}`, fileData, (err) => {
-      if (err) {
-        console.error('Error writing file:', err)
-        res.status(500).send('Error writing file.')
-      } else {
-        console.log('File uploaded successfully:', taskId)
-        res.send('File uploaded successfully.')
-      }
+    // fs.writeFile(`${baseUrl}/${fileName}`, fileData, (err) => {
+    //   if (err) {
+    //     console.error('Error writing file:', err)
+    //     res.status(500).send('Error writing file.')
+    //   } else {
+    //     console.log('File uploaded successfully:', taskId)
+    //     res.send('File uploaded successfully.')
+    // //   }
+    // })
+    const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}` })
+    setTeamAnswers({
+      userAnswersJSON: fileUrlJSON,
+      taskId,
+      userId: req.user.id,
+      teamId,
     })
-    const fileUrlJSON = JSON.stringify({ fileUrl: `${baseUrl}/${fileName}` })
-    setTeamAnswers({ userAnswersJSON: fileUrlJSON, taskId, userId: req.user.id })
   }
   if (taskType === 'many-answers') {
     // сравниваем ответы из userAnswers с правильными ответами из базы
@@ -86,13 +130,19 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', upload.single('file'), a
       taskId,
       userId: req.user.id,
       score: isRight ? task.maxScore : 0,
+      teamId,
     })
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 
   if (taskType === 'input') {
     // TODO см в файле функции setTeamAnswers
-    const result = await setTeamAnswers({ userAnswersJSON, taskId, userId: req.user.id })
+    const result = await setTeamAnswers({
+      userAnswersJSON,
+      taskId,
+      userId: req.user.id,
+      teamId,
+    })
 
     if (wsConnections) {
       wsConnections.forEach((client) => {

@@ -2,7 +2,7 @@ import getUserByAdmin from '../../lib/getUserByAdmin'
 
 const UserAPIRouter = require('express').Router()
 
-const fileMiddleware = require('../../../middleware/file')
+const avatarMiddleware = require('../../../middleware/avatar')
 
 const { User, Organizations, UserOrganizations } = require('../../../db/models')
 
@@ -30,7 +30,7 @@ UserAPIRouter.get('/users', async (req, res) => {
   }
 })
 
-UserAPIRouter.put('/user/:id', fileMiddleware.single('avatar'), async (req, res) => {
+UserAPIRouter.put('/user/:id', avatarMiddleware.single('avatar'), async (req, res) => {
   try {
     const { user } = req
     if (req.file) {
