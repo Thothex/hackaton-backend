@@ -25,7 +25,7 @@ UserAnswersAPIRouter.route('/answers').get(async (req, res) => {
       return res.json({ hackathons })
     }
     const taskIds = await Task.findAll({
-      where: { hackathon_id: hackathonId },
+      where: { hackathon_id: +hackathonId },
       attributes: ['id'],
       raw: true,
     })
@@ -35,11 +35,18 @@ UserAnswersAPIRouter.route('/answers').get(async (req, res) => {
       const answers = await TeamAnswer.findAll({
         where: {
           task_id: idsArray,
-          team_id: teamId,
+          team_id: +teamId,
         },
+        attributes: ['id', 'answer', 'teamId', 'taskId', 'userId', 'score'],
         raw: true,
       })
-      return res.json({ answers })
+      console.log('answers', answers)
+      const parsedAnswers = answers.map((item) => ({
+        ...item,
+        answer: JSON.parse(item.answer),
+      }))
+
+      return res.json(parsedAnswers)
     }
 
     const answers = await TeamAnswer.findAll({
@@ -48,6 +55,7 @@ UserAnswersAPIRouter.route('/answers').get(async (req, res) => {
     })
     return res.json({ answers })
   } catch (error) {
+    console.log(error)
     return res.status(500).json(error)
   }
 })
@@ -69,7 +77,8 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
 
   if (taskType === 'document') {
     const fileName = req.file.originalname
-    const basePath = path.join('answers', String(hackathonId), String(teamId), String(taskId))
+    const basePath = `/answers/${String(hackathonId)}/${String(teamId)}/${String(taskId)}`
+    console.log('=>>>>> basePath', path.sep)
 
     // if (!fs.existsSync(baseUrl)) {
     //   fs.mkdirSync(baseUrl, { recursive: true })
@@ -97,7 +106,8 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     //     res.send('File uploaded successfully.')
     // //   }
     // })
-    const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}` })
+    const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}/${fileName}` })
+    console.log('fileUrlJSON', fileUrlJSON)
     setTeamAnswers({
       userAnswersJSON: fileUrlJSON,
       taskId,
@@ -159,4 +169,26 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 })
+
+UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
+  try {
+    const { user } = req
+    const { answers } = req.body
+
+    console.log('answers', req.body)
+    // TODO: добавить проверку на организатора
+    if (answers) {
+      answers.forEach(async (answer) => {
+        const { id, score } = answer
+        await TeamAnswer.update({ score }, { where: { id } })
+      })
+      return res.status(201).json({ status: 'ok' })
+    }
+    return res.status(400).json({ status: 'error', message: 'No answers provided' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json(error)
+  }
+})
+
 module.exports = UserAnswersAPIRouter

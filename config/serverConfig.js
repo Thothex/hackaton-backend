@@ -6,7 +6,13 @@ const serverConfig = (app) => {
   app.use(morgan('dev'))
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
-  app.use(express.static('public'))
+  app.use(
+    express.static('public', {
+      setHeaders: (res, filePath) => {
+        res.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`)
+      },
+    }),
+  )
 }
 
 module.exports = serverConfig
