@@ -1,13 +1,10 @@
 const { TeamAnswer } = require('../../db/models')
 
-const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score }) => {
+const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score, teamId }) => {
   try {
     const teamAnswers = await TeamAnswer.findOne({
-      // TODO: возможно добавить поиск по teamId, когда он будет
-      where: { taskId, userId },
+      where: { taskId, teamId },
     })
-
-    // сделать функцию проверки капитан ли это и вытащить teamId в create ниже
     let scoreCount
     if (score !== undefined && score !== null && score >= 0) {
       scoreCount = score
@@ -28,6 +25,7 @@ const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score }) => {
       task_id: taskId,
       answer: userAnswersJSON,
       score: scoreCount,
+      teamId,
     })
     return result
   } catch (error) {
