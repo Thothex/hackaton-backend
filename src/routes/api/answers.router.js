@@ -108,12 +108,13 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     // })
     const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}/${fileName}` })
     console.log('fileUrlJSON', fileUrlJSON)
-    setTeamAnswers({
+    const result = await setTeamAnswers({
       userAnswersJSON: fileUrlJSON,
       taskId,
       userId: req.user.id,
       teamId,
     })
+    res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
   if (taskType === 'many-answers') {
     // сравниваем ответы из userAnswers с правильными ответами из базы
