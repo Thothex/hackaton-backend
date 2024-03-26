@@ -6,7 +6,7 @@ const UserAPIRouter = require('express').Router()
 
 const avatarMiddleware = require('../../../middleware/avatar')
 
-const { User, Organizations, UserOrganizations } = require('../../../db/models')
+const { User, Organizations, UserOrganizations, TeamUsers } = require('../../../db/models')
 
 UserAPIRouter.get('/user', async (req, res) => {
   const { user } = req
@@ -160,6 +160,20 @@ UserAPIRouter.patch('/user/:id', async (req, res) => {
 
   const updatedUser = await getUserByAdmin(id)
   res.status(200).json(updatedUser)
+})
+
+UserAPIRouter.get('/user/stat', async(req,res)=>{
+  const {user} = req;
+  try{
+    const participate = await TeamUsers.findAll({
+      raw: true,
+      attributes:['userId', 'createdAt'],
+      where:{user_id:user.id}
+    })
+    res.status(200).json({participate})
+  } catch(err){
+    res.status(500).json({error: err})
+  }
 })
 
 module.exports = UserAPIRouter
