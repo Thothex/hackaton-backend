@@ -65,6 +65,16 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
   const { taskId, hackathonId, userAnswers, teamId } = req.body
   const userAnswersJSON = userAnswers ? JSON.stringify(userAnswers) : null
 
+  const task = await Task.findOne({ where: { id: taskId }, raw: true })
+  const hackaton = await Hackathon.findOne({ where: { id: task.hackathonId }, raw: true })
+  const today = new Date()
+  const haStart = new Date(hackaton.start)
+  const haEnd = new Date(hackaton.end)
+
+  if (haStart > today || haEnd < today) {
+    console.log('Невозможно сохранить ответ')
+    return res.status(400).json({ message: 'Невозможно сохранить ответ: хакатон еще не начался или уже закончился' })
+  }
   /* ------------------------------------------ */
   //  Попытка отправить сообщение в websocket   //
   /* ------------------------------------------ */
@@ -116,9 +126,9 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     })
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
+
   if (taskType === 'many-answers') {
     // сравниваем ответы из userAnswers с правильными ответами из базы
-    const task = await Task.findOne({ where: { id: taskId }, raw: true })
     const rightAnswers = Object.entries(task.answers).reduce((acc, [key, answer]) => {
       if (answer.isRight) {
         acc.push({ id: key, checked: true })
