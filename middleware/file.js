@@ -9,7 +9,6 @@ const answerStorage = multer.diskStorage({
     const { taskId } = req.body
 
     const basePath = path.join('public', 'answers', String(hackathonId), String(teamId), String(taskId))
-    console.log(basePath)
 
     if (!fs.existsSync(basePath)) {
       fs.mkdirSync(basePath, { recursive: true })
