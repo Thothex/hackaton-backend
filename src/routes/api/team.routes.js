@@ -1,6 +1,8 @@
 const TeamApiRouter = require('express').Router()
 const nodemailer = require('nodemailer')
+const WebSocket = require('ws')
 const { Team, HackathonTeam, TeamUsers, User, Hackathon } = require('../../../db/models')
+const { getWebSocketConnection } = require('../../lib/wsocket')
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.yandex.ru',
@@ -154,7 +156,19 @@ TeamApiRouter.get('/team/accept/:teamId/:userId', async (req, res) => {
     }
 
     await TeamUsers.update({ accepted: true }, { where: { team_id: teamId, user_id: user.id } })
-
+    const wsConnections = getWebSocketConnection()
+    if (wsConnections) {
+      wsConnections.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(
+            JSON.stringify({
+              teamId,
+              text: `User ${user.email} has accepted the invitation to join the team ${team.name}`,
+            }),
+          )
+        }
+      })
+    }
     res.status(200).json({ message: 'User was added to the team' })
   } catch (err) {
     res.status(500).json({ message: 'Error adding user to team', error: err.message })
