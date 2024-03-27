@@ -22,7 +22,6 @@ HachathonTeamsApiRouter.get('/teams', async (req, res) => {
         },
       ],
     })
-    console.log('teams', teams)
     res.status(200).json(teams)
   } catch (err) {
     console.error('Error getting teams', err)
