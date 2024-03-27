@@ -137,3 +137,5 @@ dist
 .DS_Store
 app_image_app.tar
 app_image.tar
+public/avatars
+public/answers
