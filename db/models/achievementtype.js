@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   AchievementType.init(
     {
       name: DataTypes.STRING,
+      reason: DataTypes.STRING,
     },
     {
       sequelize,

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Rank.init({
     name: DataTypes.STRING,
-    scoreBorder: DataTypes.STRING,
+    scoreBorder: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Rank',
