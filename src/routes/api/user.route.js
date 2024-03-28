@@ -6,7 +6,7 @@ const UserAPIRouter = require('express').Router()
 
 const avatarMiddleware = require('../../../middleware/avatar')
 
-const { User, Organizations, UserOrganizations, TeamUsers } = require('../../../db/models')
+const { User, Organizations, UserOrganizations, TeamUsers, HackathonTeam, Hackathon } = require('../../../db/models')
 
 UserAPIRouter.get('/user', async (req, res) => {
   const { user } = req
@@ -162,17 +162,28 @@ UserAPIRouter.patch('/user/:id', async (req, res) => {
   res.status(200).json(updatedUser)
 })
 
-UserAPIRouter.get('/user/stat', async(req,res)=>{
-  const {user} = req;
-  try{
+UserAPIRouter.get('/user/stat', async (req, res) => {
+  const { user } = req
+  try {
     const participate = await TeamUsers.findAll({
       raw: true,
-      attributes:['userId', 'createdAt'],
-      where:{user_id:user.id}
+      attributes: ['userId', 'createdAt', 'teamId'],
+      where: { user_id: user.id },
     })
-    res.status(200).json({participate})
-  } catch(err){
-    res.status(500).json({error: err})
+
+    const teamId = participate.map((el) => el.teamId)
+    const hackId = await HackathonTeam.findAll({
+      where: { team_id: teamId },
+      attributes: ['hackathonId'],
+      raw: true,
+    })
+
+    const hackIds = hackId.map((el) => el.hackathonId)
+    const hack = await Hackathon.findAll({ where: { id: hackIds }, raw: true })
+
+    res.status(200).json({ participate, hack })
+  } catch (err) {
+    res.status(500).json({ error: err })
   }
 })
 
