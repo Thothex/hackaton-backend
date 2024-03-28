@@ -7,6 +7,7 @@ const { Task, TeamAnswer, Hackathon } = require('../../../db/models')
 const { default: setTeamAnswers } = require('../../lib/setTeamAnswers')
 const { configure, getWebSocketConnection } = require('../../lib/wsocket')
 const fileMiddleware = require('../../../middleware/file')
+const { default: wsOnAnswer } = require('../../lib/wsOnAnswer')
 
 UserAnswersAPIRouter.route('/answers').get(async (req, res) => {
   // пока так:
@@ -72,7 +73,6 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
   const haEnd = new Date(hackaton.end)
 
   if (haStart > today || haEnd < today) {
-    console.log('Невозможно сохранить ответ')
     return res.status(400).json({ message: 'Невозможно сохранить ответ: хакатон еще не начался или уже закончился' })
   }
   /* ------------------------------------------ */
@@ -88,7 +88,6 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
   if (taskType === 'document') {
     const fileName = req.file.originalname
     const basePath = `/answers/${String(hackathonId)}/${String(teamId)}/${String(taskId)}`
-    console.log('=>>>>> basePath', path.sep)
 
     // if (!fs.existsSync(baseUrl)) {
     //   fs.mkdirSync(baseUrl, { recursive: true })
@@ -124,6 +123,7 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
       userId: req.user.id,
       teamId,
     })
+    wsOnAnswer(wsConnections, WebSocket, +hackathonId)
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 
@@ -153,6 +153,8 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
       score: isRight ? task.maxScore : 0,
       teamId,
     })
+
+    wsOnAnswer(wsConnections, WebSocket, hackathonId)
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 
@@ -164,35 +166,23 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
       userId: req.user.id,
       teamId,
     })
-
-    if (wsConnections) {
-      wsConnections.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(
-            JSON.stringify({
-              platform: 'Был получен ответ от команды, запросите обновление дашборда',
-              hackathonId,
-            }),
-          )
-        }
-      })
-    }
+    wsOnAnswer(wsConnections, WebSocket, hackathonId)
     res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 })
 
 UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
   try {
-    const { user } = req
-    const { answers } = req.body
+    const { answers, hackathonId } = req.body
 
-    console.log('answers', req.body)
     // TODO: добавить проверку на организатора
     if (answers) {
       answers.forEach(async (answer) => {
         const { id, score } = answer
         await TeamAnswer.update({ score }, { where: { id } })
       })
+      const wsConnections = getWebSocketConnection()
+      wsOnAnswer(wsConnections, WebSocket, +hackathonId)
       return res.status(201).json({ status: 'ok' })
     }
     return res.status(400).json({ status: 'error', message: 'No answers provided' })
