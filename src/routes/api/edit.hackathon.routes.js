@@ -1,5 +1,6 @@
 const EditHackathonAPIRouter = require('express').Router()
 const { Hackathon, Categories, Organizations, HackathonsOrganizations } = require('../../../db/models/index')
+const ratingCalculation = require('../../lib/ratingCalculation')
 
 EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
   const { name, type, description, start, end, category, audience, rules, isPrivate, organizations } = req.body
@@ -74,8 +75,20 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
 
 EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
   const hackathonId = req.params.id
-  const { name, type, description, start, end, category, audience, rules, isPrivate, organizations, organizer_id } =
-    req.body
+  const {
+    name,
+    type,
+    description,
+    start,
+    end,
+    category,
+    audience,
+    rules,
+    isPrivate,
+    organizations,
+    organizer_id,
+    status,
+  } = req.body
   if (req.user.id !== organizer_id) {
     res.status(403)
     return res.json({ error: 'You are not allowed to do this action' })
@@ -98,6 +111,7 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         organizer_id: req.user.id,
         rules,
         private: isPrivate || true,
+        status,
       },
       {
         where: { id: Number(hackathonId) },
@@ -129,6 +143,12 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         },
       ],
     })
+
+    if (status === 'Finished') {
+      // TODO: функция подсчёта рейтинга
+      console.log('Calculate rating.....................')
+      ratingCalculation(hackathonId)
+    }
     res.status(200)
     res.json(updatedHackathon)
   } catch (error) {

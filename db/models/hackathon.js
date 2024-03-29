@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       start: DataTypes.DATE,
       end: DataTypes.DATE,
       private: DataTypes.BOOLEAN,
+      status: DataTypes.STRING,
     },
     {
       sequelize,
