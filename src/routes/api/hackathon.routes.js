@@ -102,7 +102,7 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
         {
           model: Task,
           as: 'tasks',
-          attributes: ['id', 'name'],
+          attributes: ['id', 'name', 'maxScore'],
         },
       ],
     })
