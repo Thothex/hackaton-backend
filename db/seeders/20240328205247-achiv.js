@@ -38,7 +38,7 @@ module.exports = {
         await queryInterface.bulkInsert('achievements', [
           {
             name: `${achievementType.name} (${rank.name})`,
-            icon: `${achievementType.name.toLowerCase().replace(/\s+/g, '_')}_${rank.name}_icon.png`,
+            icon: `${achievementType.name.toLowerCase().replace(/\s+/g, '_')}_${rank.name}_icon.svg`,
             reason: `For ${achievementType.reason.toLowerCase()} in ${rank.name} rank`,
             rank_id: rank.id,
             achievement_type_id: achievementType.id,
