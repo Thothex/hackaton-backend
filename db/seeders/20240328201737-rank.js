@@ -6,7 +6,7 @@ module.exports = {
     const ranks = ['wooden', 'iron', 'bronze', 'silver', 'gold', 'platinum', 'diamond'];
     let previousScoreBorder = 0;
     for (let i = 0; i < ranks.length; i++) {
-      const coefficient = Math.round(Math.pow(i + 1, 2));
+      const coefficient = (i)*100;
 
       const scoreBorder = previousScoreBorder + coefficient;
 

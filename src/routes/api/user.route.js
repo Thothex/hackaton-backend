@@ -1,12 +1,13 @@
 import path from 'path'
 import fs from 'fs'
 import getUserByAdmin from '../../lib/getUserByAdmin'
-
+import {Sequelize} from "sequelize";
+const { Op } = require('sequelize');
 const UserAPIRouter = require('express').Router()
 
 const avatarMiddleware = require('../../../middleware/avatar')
 
-const { User, Organizations, UserOrganizations, TeamUsers, HackathonTeam, Hackathon } = require('../../../db/models')
+const { User, Organizations, UserOrganizations, TeamUsers, HackathonTeam, Hackathon, Rank, Categories, Team } = require('../../../db/models')
 
 UserAPIRouter.get('/user', async (req, res) => {
   const { user } = req
@@ -163,28 +164,41 @@ UserAPIRouter.patch('/user/:id', async (req, res) => {
 })
 
 UserAPIRouter.get('/user/stat', async (req, res) => {
-  const { user } = req
+  const { user } = req;
   try {
     const participate = await TeamUsers.findAll({
       raw: true,
       attributes: ['userId', 'createdAt', 'teamId'],
       where: { user_id: user.id },
-    })
+    });
 
-    const teamId = participate.map((el) => el.teamId)
+    const teamId = participate.map((el) => el.teamId);
     const hackId = await HackathonTeam.findAll({
       where: { team_id: teamId },
       attributes: ['hackathonId'],
       raw: true,
-    })
+    });
 
-    const hackIds = hackId.map((el) => el.hackathonId)
-    const hack = await Hackathon.findAll({ where: { id: hackIds }, raw: true })
+    const userRank = await Rank.findOne({
+      where: {
+        scoreBorder: { [Sequelize.Op.lte]: user.score }
+      },
+      order: [['scoreBorder', 'DESC']],
+    });
 
-    res.status(200).json({ participate, hack })
-  } catch (err) {
-    res.status(500).json({ error: err })
+    const hackIds = hackId.map((el) => el.hackathonId);
+    const hack = await Hackathon.findAll({ where: { id: hackIds }, raw: true });
+
+    const categoryIds = hack.map(hackathon => hackathon.category_id);
+    const categories = await Categories.findAll({ where: { id: categoryIds } });
+
+
+    res.status(200).json({ participate, hack, userRank, categories});
+    // res.status(200).json({ participate, hack, rank, categories });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
-})
+});
 
 module.exports = UserAPIRouter
