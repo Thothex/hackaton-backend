@@ -91,8 +91,7 @@ const ratingCalculation = async (hackathonId) => {
       where: { userId: user.id },
     })
 
-    console.log('hackathon orgs =>>>>>', hackathonOrganizations)
-    if (userOrgCurrentOrgId) {
+    if (userOrgCurrentOrgId && !!hackathonOrganizations.length) {
       const userOrgRating = await UserOrganizationRating.findOne({
         where: { userId: user.id, organizationId: userOrgCurrentOrgId.organizationId },
       })
