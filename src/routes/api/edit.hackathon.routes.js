@@ -88,6 +88,7 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
     organizations,
     organizer_id,
     status,
+    prize,
   } = req.body
   if (req.user.id !== organizer_id) {
     res.status(403)
@@ -112,6 +113,7 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         rules,
         private: isPrivate || true,
         status,
+        prize,
       },
       {
         where: { id: Number(hackathonId) },
