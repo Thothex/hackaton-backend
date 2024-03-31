@@ -165,6 +165,7 @@ UserAPIRouter.patch('/user/:id', async (req, res) => {
 
 UserAPIRouter.get('/user/stat', async (req, res) => {
   const { user } = req;
+
   try {
     const participate = await TeamUsers.findAll({
       raw: true,
