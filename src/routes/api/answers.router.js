@@ -1,6 +1,4 @@
 const UserAnswersAPIRouter = require('express').Router()
-const fs = require('fs')
-const path = require('path')
 const WebSocket = require('ws')
 const { Task, TeamAnswer, Hackathon } = require('../../../db/models')
 
