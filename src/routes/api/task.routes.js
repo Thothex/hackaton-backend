@@ -2,15 +2,15 @@ const TaskApiRouter = require('express').Router()
 const { Task, Hackathon } = require('../../../db/models')
 
 TaskApiRouter.post('/hackathon/:hackathonId/task', async (req, res) => {
-  console.log('req.body', req.body)
   const { hackathonId } = req.params
-  const { name, description, maxScore, type } = req.body
+  const { name, description, maxScore, type, answers } = req.body
   const task = await Task.create({
     name,
     description,
     hackathon_id: hackathonId,
     maxScore: maxScore || 100,
     type,
+    answers,
   })
 
   res.status(201)
@@ -39,6 +39,21 @@ TaskApiRouter.put('/task/:taskId', async (req, res) => {
   res.status(200).json({ id: taskId })
 })
 
+TaskApiRouter.delete('/task/:taskId', async (req, res) => {
+  const { taskId } = req.params
+  try {
+    const result = await Task.destroy({ where: { id: taskId } })
+    if (result) {
+      res.status(200).json({ id: taskId })
+    } else {
+      res.status(400).json({ error: 'There is no such task' })
+    }
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+})
+
 TaskApiRouter.route('/hackathon/:hackathonId/tasks')
   .get(async (req, res) => {
     try {
@@ -62,7 +77,6 @@ TaskApiRouter.route('/hackathon/:hackathonId/tasks')
       if (!hackathon) {
         return res.status(404).json({ error: 'Hackathon not found' })
       }
-
 
       const { name, description, maxScore, type, answer, wrong1, wrong2, wrong3 } = req.body
       const newTask = await Task.create({
