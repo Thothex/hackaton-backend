@@ -119,12 +119,18 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         where: { id: Number(hackathonId) },
       },
     )
-
+    const currentHackathonOrgs = await HackathonsOrganizations.findAll({
+      where: { hackathon_id: hackathonId },
+      raw: true,
+    })
     const hackathonOrganizations = organizations.map((org) => ({
       hackathon_id: hackathon.id,
       organization_id: org.id,
     }))
-    await HackathonsOrganizations.bulkCreate(hackathonOrganizations)
+    const newOrgs = hackathonOrganizations.filter(
+      (org) => !currentHackathonOrgs.find((cOrg) => cOrg.organization_id === org.organization_id),
+    )
+    await HackathonsOrganizations.bulkCreate(newOrgs)
     console.log('hackathonOrganizations: ', hackathonOrganizations)
 
     const updatedHackathon = await Hackathon.findByPk(hackathonId, {

@@ -1,5 +1,14 @@
 const Sequelize = require('sequelize')
-const { Hackathon, Team, TeamAnswer, User, TeamUsers } = require('../../db/models')
+const {
+  Hackathon,
+  Team,
+  TeamAnswer,
+  User,
+  TeamUsers,
+  UserOrganizationRating,
+  UserOrganizations,
+  HackathonsOrganizations,
+} = require('../../db/models')
 
 const ratingCalculation = async (hackathonId) => {
   const hackathon = await Hackathon.findOne({
@@ -58,6 +67,10 @@ const ratingCalculation = async (hackathonId) => {
     return acc
   }, [])
 
+  const hackathonOrganizations = await HackathonsOrganizations.findAll({
+    where: { hackathonId },
+    raw: true,
+  })
   console.log('usersRating', usersRating)
   // распределённый по пользователям команды score (id - айди пользователя)
   // [
@@ -74,6 +87,31 @@ const ratingCalculation = async (hackathonId) => {
         where: { id: user.id },
       },
     )
+    const userOrgCurrentOrgId = await UserOrganizations.findOne({
+      where: { userId: user.id },
+    })
+
+    if (userOrgCurrentOrgId && !!hackathonOrganizations.length) {
+      const userOrgRating = await UserOrganizationRating.findOne({
+        where: { userId: user.id, organizationId: userOrgCurrentOrgId.organizationId },
+      })
+      if (userOrgRating) {
+        await UserOrganizationRating.update(
+          {
+            rating: Sequelize.literal(`rating + ${user.rating}`),
+          },
+          {
+            where: { userId: user.id, organizationId: userOrgCurrentOrgId.organizationId },
+          },
+        )
+      } else {
+        await UserOrganizationRating.create({
+          userId: user.id,
+          organizationId: userOrgCurrentOrgId.organizationId,
+          rating: user.rating,
+        })
+      }
+    }
   })
 }
 
