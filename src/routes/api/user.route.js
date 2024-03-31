@@ -181,10 +181,12 @@ UserAPIRouter.get('/user/stat', async (req, res) => {
 
     const userRank = await Rank.findOne({
       where: {
-        scoreBorder: { [Sequelize.Op.lte]: user.score }
+        scoreBorder: { [Sequelize.Op.gt]: user.score }
       },
-      order: [['scoreBorder', 'DESC']],
+      order: [['scoreBorder', 'ASC']],
     });
+    const nextRank = userRank?.scoreBorder - user.score;
+
 
     const hackIds = hackId.map((el) => el.hackathonId);
     const hack = await Hackathon.findAll({ where: { id: hackIds }, raw: true });
@@ -193,7 +195,7 @@ UserAPIRouter.get('/user/stat', async (req, res) => {
     const categories = await Categories.findAll({ where: { id: categoryIds } });
 
 
-    res.status(200).json({ participate, hack, userRank, categories});
+    res.status(200).json({ participate, hack, userRank, nextRank, categories});
     // res.status(200).json({ participate, hack, rank, categories });
   } catch (error) {
     console.error(error);
