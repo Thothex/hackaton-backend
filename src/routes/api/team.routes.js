@@ -19,6 +19,10 @@ TeamApiRouter.post('/team', async (req, res) => {
     const { name, hackathonId } = req.body
     const { user } = req
 
+    // TODO: можно ли регистрировать на след хакатон команду с тем же именем?
+    // с наименованием команд нужно разобраться
+    // возможно стоит резервировать названия команд за пользователем и выбирать команду из списка
+    // или по крайней мере давать создать новую команду, но с таким же названием
     const existingTeam = await Team.findOne({ where: { name } })
     if (existingTeam) {
       return res.status(400).json({ message: 'Team with this name already exists' })
