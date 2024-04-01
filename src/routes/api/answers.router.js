@@ -62,12 +62,18 @@ UserAnswersAPIRouter.route('/answers').get(async (req, res) => {
 })
 
 UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('file'), async (req, res) => {
+  const { user } = req
   const { taskType } = req.params
   const { taskId, hackathonId, userAnswers, teamId } = req.body
   const userAnswersJSON = userAnswers ? JSON.stringify(userAnswers) : null
 
   const task = await Task.findOne({ where: { id: taskId }, raw: true })
   const hackaton = await Hackathon.findOne({ where: { id: task.hackathonId }, raw: true })
+
+  if (hackaton.organizer_id === user.id) {
+    return res.status(400).json({ message: 'The organizer cannot participate in their own hackathon' })
+  }
+
   const today = new Date()
   const haStart = new Date(hackaton.start)
   const haEnd = new Date(hackaton.end)
