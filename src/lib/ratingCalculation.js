@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize')
+const WebSocket = require('ws')
 const {
   Hackathon,
   Team,
@@ -9,6 +10,8 @@ const {
   UserOrganizations,
   HackathonsOrganizations,
 } = require('../../db/models')
+const { getWebSocketConnection } = require('./wsocket')
+const { checkUserRank } = require('./checkUserRank')
 
 const ratingCalculation = async (hackathonId) => {
   const hackathon = await Hackathon.findOne({
@@ -96,6 +99,7 @@ const ratingCalculation = async (hackathonId) => {
         where: { userId: user.id, organizationId: userOrgCurrentOrgId.organizationId },
       })
       if (userOrgRating) {
+        console.log('user.rating', user.rating)
         await UserOrganizationRating.update(
           {
             rating: Sequelize.literal(`rating + ${user.rating}`),
@@ -111,8 +115,23 @@ const ratingCalculation = async (hackathonId) => {
           rating: user.rating,
         })
       }
+      checkUserRank(user.id)
     }
   })
+
+  const wsConnections = getWebSocketConnection()
+  if (wsConnections) {
+    wsConnections.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({
+            platform: 'Maybe you need to approve new rank',
+            code: 'fetch_rank_status',
+          }),
+        )
+      }
+    })
+  }
 }
 
 module.exports = ratingCalculation
