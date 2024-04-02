@@ -127,10 +127,26 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
       hackathon_id: hackathon.id,
       organization_id: org.id,
     }))
+
     const newOrgs = hackathonOrganizations.filter(
       (org) => !currentHackathonOrgs.find((cOrg) => cOrg.organization_id === org.organization_id),
     )
+
+    const orgIdsToRemove = currentHackathonOrgs
+      .filter((cOrg) => !hackathonOrganizations.find((org) => org.organization_id === cOrg.organization_id))
+      .map((org) => org.organization_id)
+
+    if (orgIdsToRemove.length > 0) {
+      await HackathonsOrganizations.destroy({
+        where: {
+          organization_id: orgIdsToRemove,
+        },
+      })
+    }
+
     await HackathonsOrganizations.bulkCreate(newOrgs)
+    console.log('oldOrgIds=>>>>>>>>>>>', orgIdsToRemove)
+    console.log('newOrgs=>>>>>>>>>>>', newOrgs)
     console.log('hackathonOrganizations: ', hackathonOrganizations)
 
     const updatedHackathon = await Hackathon.findByPk(hackathonId, {
