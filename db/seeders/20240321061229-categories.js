@@ -1,5 +1,3 @@
-'use strict'
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -15,7 +13,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        name: 'Algothythm',
+        name: 'Algorhythm',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
