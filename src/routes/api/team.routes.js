@@ -1,6 +1,7 @@
 const TeamApiRouter = require('express').Router()
 const nodemailer = require('nodemailer')
 const WebSocket = require('ws')
+const { Op } = require('sequelize')
 const { Team, HackathonTeam, TeamUsers, User, Hackathon } = require('../../../db/models')
 const { getWebSocketConnection } = require('../../lib/wsocket')
 
@@ -18,7 +19,6 @@ TeamApiRouter.post('/team', async (req, res) => {
   try {
     const { name, hackathonId } = req.body
     const { user } = req
-
 
     const hackathon = await Hackathon.findOne({ where: { id: hackathonId } })
 
@@ -63,10 +63,14 @@ TeamApiRouter.get('/team/:hackathonId/:userId', async (req, res) => {
 
     const teamUser = await TeamUsers.findOne({
       where: {
-        team_id: teamIds,
-        user_id: userId,
+        teamId: {
+          [Op.in]: teamIds,
+        },
+        userId: +userId,
       },
     })
+    console.log('teamIds', teamIds)
+    console.log('teamUser', teamUser)
 
     if (!teamUser) {
       return res.status(404).json({ message: 'User is not a member of any team for this hackathon' })
