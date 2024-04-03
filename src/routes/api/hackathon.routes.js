@@ -29,6 +29,7 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
           },
         },
       ],
+      order: [['start', 'ASC']],
     })
     const plainHackathons = hackathons.map((hackathon) => ({
       ...hackathon.toJSON(),
