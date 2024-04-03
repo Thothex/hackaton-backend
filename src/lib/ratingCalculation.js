@@ -9,6 +9,7 @@ const {
   UserOrganizationRating,
   UserOrganizations,
   HackathonsOrganizations,
+  Task,
 } = require('../../db/models')
 const { getWebSocketConnection } = require('./wsocket')
 const { checkUserRank } = require('./checkUserRank')
@@ -28,6 +29,18 @@ const ratingCalculation = async (hackathonId) => {
     attributes: ['teamId', 'score'],
     raw: true,
   })
+
+  const maxTaskScore = await Task.findOne({
+    attributes: [
+      [Sequelize.fn('SUM', Sequelize.col('max_score')), 'totalMaxScore'], // Вычисляем сумму max_score и даем ей псевдоним totalMaxScore
+    ],
+    where: {
+      hackathonId,
+    },
+    raw: true,
+  })
+
+  console.log('maxTasksScore', maxTaskScore.totalMaxScore)
 
   const teamsScores = teamsAnswers.reduce((acc, item) => {
     if (!acc[item.teamId]) {
@@ -63,7 +76,8 @@ const ratingCalculation = async (hackathonId) => {
   const usersRating = Object.keys(teamUsers).reduce((acc, teamId) => {
     const teamScore = teamsScores[teamId] || 0
     const teamUsersCount = teamUsers[teamId].length
-    const userRating = (maxHackathonRating * teamScore) / teamUsersCount
+    const maxTasksScore = maxTaskScore.totalMaxScore
+    const userRating = ((teamScore / maxTasksScore) * maxHackathonRating) / teamUsersCount
     teamUsers[teamId].forEach((userId) => {
       acc.push({ id: userId, rating: userRating })
     })
