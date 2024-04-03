@@ -3,17 +3,37 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const categories = [
       {
-        name: 'Science',
+        name: 'Chemistry',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'JavaScript',
+        name: 'Biology',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Algorhythm',
+        name: 'Development',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Algorithms',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Data Science',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Art',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Philosophy',
         createdAt: new Date(),
         updatedAt: new Date(),
       },

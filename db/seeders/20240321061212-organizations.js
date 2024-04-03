@@ -13,7 +13,17 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        name: 'Молодцы-орлы',
+        name: 'MSU',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'ITMO',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'School №619 of SPB',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -28,5 +38,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
+    await queryInterface.bulkDelete('organizations', null, {});
   },
 }
