@@ -3,7 +3,7 @@ const { Hackathon, Categories, Organizations, HackathonsOrganizations } = requir
 const ratingCalculation = require('../../lib/ratingCalculation')
 
 EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
-  const { name, type, description, start, end, category, audience, rules, isPrivate, organizations } = req.body
+  const { name, type, description, start, end, category, audience, rules, isPrivate, organizations, prize } = req.body
 
   console.log('req.body: ', req.body)
   if (!name || !type || !description || !start || !end) {
@@ -30,6 +30,7 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
       organizer_id: req.user.id,
       rules,
       private: isPrivate || true,
+      prize,
     })
 
     const hackathonOrganizations = organizations.map((org) => ({
