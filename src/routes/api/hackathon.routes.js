@@ -8,6 +8,7 @@ const {
   Team,
   HackathonTeam,
   TeamAnswer,
+  sequelize,
 } = require('../../../db/models/index')
 
 HackathonAPIRouter.get('/hackathon', async (req, res) => {
@@ -29,7 +30,10 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
           },
         },
       ],
-      order: [['start', 'ASC']],
+      order: [
+        [sequelize.literal('CASE WHEN "end" < NOW() THEN 1 ELSE 0 END'), 'ASC'],
+        ['start', 'ASC'],
+      ],
     })
     const plainHackathons = hackathons.map((hackathon) => ({
       ...hackathon.toJSON(),
