@@ -31,9 +31,7 @@ const ratingCalculation = async (hackathonId) => {
   })
 
   const maxTaskScore = await Task.findOne({
-    attributes: [
-      [Sequelize.fn('SUM', Sequelize.col('max_score')), 'totalMaxScore'], // Вычисляем сумму max_score и даем ей псевдоним totalMaxScore
-    ],
+    attributes: [[Sequelize.fn('SUM', Sequelize.col('max_score')), 'totalMaxScore']],
     where: {
       hackathonId,
     },
