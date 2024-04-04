@@ -56,9 +56,19 @@ TaskApiRouter.delete('/task/:taskId', async (req, res) => {
 
 TaskApiRouter.route('/hackathon/:hackathonId/tasks')
   .get(async (req, res) => {
+    const { hackathonId } = req.params
+    const userId = req.user.id
     try {
-      const { hackathonId } = req.params
+      const ha = await Hackathon.findByPk(hackathonId)
+      const orgUserId = ha.organizer_id
       const tasks = await Task.findAll({ where: { hackathonId }, raw: true })
+      if (orgUserId !== userId) {
+        tasks.forEach((task) => {
+          Object.values(task.answers).forEach((answer) => {
+            delete answer.isRight
+          })
+        })
+      }
       res.status(200).json(tasks)
     } catch (err) {
       res.status(500).json(err)
