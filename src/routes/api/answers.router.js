@@ -1,6 +1,6 @@
 const UserAnswersAPIRouter = require('express').Router()
 const WebSocket = require('ws')
-const { Task, TeamAnswer, Hackathon } = require('../../../db/models')
+const { Task, TeamAnswer, Hackathon, UserOrganizations, HackathonsOrganizations } = require('../../../db/models')
 
 const { default: setTeamAnswers } = require('../../lib/setTeamAnswers')
 const { configure, getWebSocketConnection } = require('../../lib/wsocket')
@@ -70,6 +70,15 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
 
   if (hackaton.organizer_id === user.id) {
     return res.status(400).json({ message: 'The organizer cannot participate in their own hackathon' })
+  }
+
+  const userOrganization = await UserOrganizations.findOne({ where: { userId: user.id }, raw: true })
+  const hackOrganizations = await HackathonsOrganizations.findAll({ where: { hackathonId: hackaton.id }, raw: true })
+  if (hackOrganizations.length > 0) {
+    const isEmployeeOrg = !!hackOrganizations.find((hack) => hack.organizationId === userOrganization?.organizationId)
+    if (!isEmployeeOrg) {
+      return res.status(400).json({ message: 'You are not an employee of this organization' })
+    }
   }
 
   const today = new Date()

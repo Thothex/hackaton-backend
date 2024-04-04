@@ -2,7 +2,15 @@ const TeamApiRouter = require('express').Router()
 const nodemailer = require('nodemailer')
 const WebSocket = require('ws')
 const { Op } = require('sequelize')
-const { Team, HackathonTeam, TeamUsers, User, Hackathon } = require('../../../db/models')
+const {
+  Team,
+  HackathonTeam,
+  TeamUsers,
+  User,
+  Hackathon,
+  UserOrganizations,
+  HackathonsOrganizations,
+} = require('../../../db/models')
 const { getWebSocketConnection } = require('../../lib/wsocket')
 
 const transporter = nodemailer.createTransport({
@@ -24,6 +32,15 @@ TeamApiRouter.post('/team', async (req, res) => {
 
     if (hackathon.organizer_id === user.id) {
       return res.status(400).json({ message: 'The organizer cannot participate in their own hackathon' })
+    }
+
+    const userOrganization = await UserOrganizations.findOne({ where: { userId: user.id }, raw: true })
+    const hackOrganizations = await HackathonsOrganizations.findAll({ where: { hackathonId: hackathon.id }, raw: true })
+    if (hackOrganizations.length > 0) {
+      const isEmployeeOrg = !!hackOrganizations.find((hack) => hack.organizationId === userOrganization?.organizationId)
+      if (!isEmployeeOrg) {
+        return res.status(400).json({ message: 'You are not an employee of this organization' })
+      }
     }
 
     // TODO: можно ли регистрировать на след хакатон команду с тем же именем?

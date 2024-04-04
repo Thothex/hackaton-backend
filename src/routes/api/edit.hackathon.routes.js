@@ -29,7 +29,7 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
       audience,
       organizer_id: req.user.id,
       rules,
-      private: isPrivate || true,
+      private: isPrivate || false,
       prize,
     })
 
@@ -112,7 +112,7 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         audience: audience.name,
         organizer_id: req.user.id,
         rules,
-        private: isPrivate || true,
+        private: isPrivate || false,
         status,
         prize,
       },
