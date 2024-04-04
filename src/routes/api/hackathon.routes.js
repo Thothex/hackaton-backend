@@ -112,6 +112,7 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
       ],
     })
     const taskIds = hackathon.tasks.map((task) => task.id)
+    console.log('taskIds', taskIds)
 
     const teamsAnswers = await TeamAnswer.findAll({
       where: { taskId: taskIds },
@@ -137,7 +138,7 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
     res.status(200).json(teamsWithAnswers)
   } catch (err) {
     console.error('Error getting teams', err)
-    res.status(500).json({ message: 'Error creating team', error: err })
+    res.status(500).json({ message: 'Stat error', error: err })
   }
 })
 
