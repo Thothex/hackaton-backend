@@ -104,12 +104,12 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
     await Hackathon.update(
       {
         name,
-        type: type.name,
+        type,
         description,
         start,
         end,
         category_id: category.id,
-        audience: audience.name,
+        audience,
         organizer_id: req.user.id,
         rules,
         private: isPrivate || false,
