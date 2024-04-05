@@ -103,6 +103,16 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
     return res.json({ error: 'You are not allowed to do this action' })
   }
   try {
+    const userOrgs = await User.findOne({
+      where: { id: req.user.id },
+      raw: true,
+    })
+
+    console.log('userOrgs: ', userOrgs.isOrg)
+    if (!userOrgs.isOrg) {
+      res.status(400).json({ status: 'error', message: 'You are not the organizer' })
+    }
+
     const hackathon = await Hackathon.findByPk(hackathonId)
     if (!hackathon) {
       res.status(404)
