@@ -38,7 +38,8 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
       raw: true,
     })
 
-    if (!userOrgs.dataValues.isOrg) {
+    console.log('userOrgs: ', userOrgs.isOrg)
+    if (!userOrgs.isOrg) {
       res.status(400).json({ status: 'error', message: 'You are not the organizer' })
     }
     const hackathonOrganizations = organizations.map((org) => ({
