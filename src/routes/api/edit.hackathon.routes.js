@@ -1,5 +1,5 @@
 const EditHackathonAPIRouter = require('express').Router()
-const { Hackathon, Categories, Organizations, HackathonsOrganizations } = require('../../../db/models/index')
+const { Hackathon, Categories, Organizations, HackathonsOrganizations, User } = require('../../../db/models/index')
 const ratingCalculation = require('../../lib/ratingCalculation')
 
 EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
@@ -33,12 +33,18 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
       prize,
     })
 
+    const userOrgs = await User.findOne({
+      where: { id: req.user.id },
+      raw: true,
+    })
+
+    if (!userOrgs.dataValues.isOrg) {
+      res.status(400).json({ status: 'error', message: 'You are not the organizer' })
+    }
     const hackathonOrganizations = organizations.map((org) => ({
       hackathon_id: newHackathon.id,
       organization_id: org.id,
     }))
-
-    console.log('hackathonOrganizations: ', hackathonOrganizations)
 
     await HackathonsOrganizations.bulkCreate(hackathonOrganizations)
     const createdHackathon = await Hackathon.findByPk(newHackathon.id, {
