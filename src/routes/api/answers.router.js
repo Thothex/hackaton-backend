@@ -187,8 +187,11 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
 UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
   try {
     const { answers, hackathonId } = req.body
-
-    // TODO: добавить проверку на организатора
+    const ha = await Hackathon.findByPk(hackathonId)
+    if (!(req.user.id = ha.dataValues.organizer_id)) {
+      // console.log('ha', ha.dataValues.organizer_id)
+      res.status(400).json({ status: 'error', message: 'You are not the organizer of this hackathon' })
+    }
     if (answers) {
       answers.forEach(async (answer) => {
         const { id, score } = answer
