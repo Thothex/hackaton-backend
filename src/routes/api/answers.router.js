@@ -188,8 +188,7 @@ UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
   try {
     const { answers, hackathonId } = req.body
     const ha = await Hackathon.findByPk(hackathonId)
-    if (!(req.user.id = ha.dataValues.organizer_id)) {
-      // console.log('ha', ha.dataValues.organizer_id)
+    if (req.user.id !== ha.dataValues.organizer_id) {
       res.status(400).json({ status: 'error', message: 'You are not the organizer of this hackathon' })
     }
     if (answers) {
