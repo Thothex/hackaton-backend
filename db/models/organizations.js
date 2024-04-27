@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   Organizations.init(
     {
       name: DataTypes.STRING,
+      description: DataTypes.STRING,
+      picture:DataTypes.STRING,
       // score: DataTypes.INTEGER,
     },
     {
