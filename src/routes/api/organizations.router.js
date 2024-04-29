@@ -47,33 +47,31 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
             res.status(500).json({ error: 'Не удалось создать организацию' });
         }
     })
-    .get('/organizations/:id/hackathon-organizers', async (req, res) => {
+    .get('/organizations/:id', async (req, res) => {
         try {
             const { id } = req.params;
 
-            // Найти организацию по ID
             const organization = await Organizations.findOne({ where: { id } });
 
-            // Если организация не найдена, вернуть ошибку
             if (!organization) {
                 return res.status(404).json({ error: 'Организация не найдена' });
             }
 
-            const organizers = await User.findAll({ where: { isOrg: true } });
+            const userOrgs = await UserOrganizations.findAll({ where: { organizationId: id }, raw: true });
+            const userIds = userOrgs.map(userOrg => userOrg.userId);
+            const users = await User.findAll({ where: { id: userIds }, raw: true });
+            const organizers = await User.findAll({ where: { isOrg: true }, raw: true });
+            // const hackathons = await Promise.all(organizers.map(async (organizer) => {
+            //     return await Hackathon.findAll({ where: { organizer_id: organizer.id }, raw: true });
+            // }));
+            const hackathons = await Hackathon.findAll({where:{organizer_id:organization.id }})
 
-            const hackathons = await Promise.all(organizers.map(async (organizer) => {
-                return await Hackathon.findAll({where: {organizer_id: organizer.id}, raw: true});
-            }));
-
-            const totalPeople = await UserOrganizations.count({ where: { organization_id: id } });
-
-            res.status(200).json({ organization, hackathons, totalPeople });
+            res.status(200).json({ organization, users, hackathons, totalPeople: userOrgs.length });
         } catch (error) {
-            console.error('Ошибка при получении организаторов хакатона и их хакатонов:', error);
+            console.error('Ошибка при получении данных об организации, пользователях и хакатонах:', error);
             res.status(500).json({ error: 'Не удалось получить данные' });
         }
     });
-
 
 
 

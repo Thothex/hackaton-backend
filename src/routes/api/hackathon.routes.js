@@ -9,6 +9,8 @@ const {
   HackathonTeam,
   TeamAnswer,
   sequelize,
+  UserOrganizations,
+  User
 } = require('../../../db/models/index')
 
 HackathonAPIRouter.get('/hackathon', async (req, res) => {
@@ -34,23 +36,38 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
         [sequelize.literal('CASE WHEN "end" < NOW() THEN 1 ELSE 0 END'), 'ASC'],
         ['start', 'ASC'],
       ],
-    })
-    const plainHackathons = hackathons.map((hackathon) => ({
-      ...hackathon.toJSON(),
-      // category: hackathon.category.name,
-      category_id: undefined,
-    }))
-    res.status(200)
-    res.json(plainHackathons)
+    });
+
+    const plainHackathons = await Promise.all(hackathons.map(async (hackathon) => {
+      const organization = await Organizations.findByPk(hackathon.organizer_id);
+      const userOrgs = await UserOrganizations.findAll({ where: { organizationId: organization.id } });
+      const usersPromises = userOrgs.map(async (userOrg) => {
+        return await User.findOne({ where: { id: userOrg.userId, isOrg: true }, raw: true });
+      });
+      const users = await Promise.all(usersPromises);
+
+      return {
+        ...hackathon.toJSON(),
+        users: users,
+        category_id: undefined,
+      };
+    }));
+
+    res.status(200).json(plainHackathons);
   } catch (error) {
-    console.error('error: ', error)
-    res.status(500)
-    res.json({ error: error.message })
+    console.error('error: ', error);
+    res.status(500).json({ error: error.message });
   }
-})
+});
+
+
 
 HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
-  const { id } = req.params
+  const { id } = req.params;
+
+  // const userOrg = await  UserOrganizations.findOne({where:{userId: user.id}});
+
+
   try {
     const hackathon = await Hackathon.findByPk(id, {
       include: [
@@ -78,12 +95,24 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
       res.status(404).json({ error: 'Hackathon not found' })
       return
     }
-    const plainHackathon = {
-      ...hackathon.toJSON(),
-      // category: hackathon.category.name,
-      category_id: undefined,
-    }
-    res.status(200).json(plainHackathon)
+
+    // const organization = await Organizations.findByPk(hackathon.organizer_id);
+    // const orgs = await UserOrganizations.findAll({where:{organizationId:organization.id}});
+    //
+    //
+    //
+    // const users = await Promise.all(orgs.map(async(org)=>{
+    //   return await User.findOne({where: {id: org.userId, isOrg: true}, raw: true})
+    // }))
+
+      const plainHackathon = {
+        ...hackathon.toJSON(),
+        // category: hackathon.category.name,
+        category_id: undefined,
+        organizators:users
+      }
+      res.status(200).json(plainHackathon)
+
   } catch (error) {
     console.error('error: ', error)
     res.status(500).json({ error: error.message })

@@ -1,11 +1,12 @@
 const EditHackathonAPIRouter = require('express').Router()
-const { Hackathon, Categories, Organizations, HackathonsOrganizations, User } = require('../../../db/models/index')
+const { Hackathon, Categories, Organizations, HackathonsOrganizations, User, UserOrganizations } = require('../../../db/models/index')
 const ratingCalculation = require('../../lib/ratingCalculation')
 
 EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
   const { name, type, description, start, end, category, audience, rules, isPrivate, organizations, prize } = req.body
+  const {user} = req;
 
-  console.log('req.body: ', req.body)
+  const organization = await UserOrganizations.findOne({where:{user_id: user.id}})
   if (!name || !type || !description || !start || !end) {
     res.status(400)
     return res.json({ error: 'Some data not specified. name, type, description, start, end' })
@@ -27,7 +28,7 @@ EditHackathonAPIRouter.post('/hackathon', async (req, res) => {
       end,
       category_id: category.id,
       audience,
-      organizer_id: req.user.id,
+      organizer_id: organization.organizationId,
       rules,
       private: isPrivate || false,
       prize,
@@ -98,10 +99,14 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
     status,
     prize,
   } = req.body
-  if (req.user.id !== organizer_id) {
-    res.status(403)
-    return res.json({ error: 'You are not allowed to do this action' })
-  }
+  const {user} = req;
+
+  const organization = await UserOrganizations.findOne({where:{userId: user.id}})
+
+  // if (req.user.id !== organizer_id) {
+  //   res.status(403)
+  //   return res.json({ error: 'You are not allowed to do this action' })
+  // }
   try {
     const userOrgs = await User.findOne({
       where: { id: req.user.id },
@@ -127,7 +132,7 @@ EditHackathonAPIRouter.put('/hackathon/:id', async (req, res) => {
         end,
         category_id: category.id,
         audience,
-        organizer_id: req.user.id,
+        organizer_id:organization.organizationId,
         rules,
         private: isPrivate || false,
         status,
