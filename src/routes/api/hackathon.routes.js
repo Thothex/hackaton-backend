@@ -65,9 +65,6 @@ HackathonAPIRouter.get('/hackathon', async (req, res) => {
 HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
   const { id } = req.params;
 
-  // const userOrg = await  UserOrganizations.findOne({where:{userId: user.id}});
-
-
   try {
     const hackathon = await Hackathon.findByPk(id, {
       include: [
@@ -95,21 +92,13 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
       res.status(404).json({ error: 'Hackathon not found' })
       return
     }
-
-    // const organization = await Organizations.findByPk(hackathon.organizer_id);
-    // const orgs = await UserOrganizations.findAll({where:{organizationId:organization.id}});
-    //
-    //
-    //
-    // const users = await Promise.all(orgs.map(async(org)=>{
-    //   return await User.findOne({where: {id: org.userId, isOrg: true}, raw: true})
-    // }))
+const organization = await Organizations.findByPk(hackathon.organizer_id)
 
       const plainHackathon = {
         ...hackathon.toJSON(),
-        // category: hackathon.category.name,
+
         category_id: undefined,
-        organizators:users
+        organizer_name: organization.name
       }
       res.status(200).json(plainHackathon)
 
