@@ -159,5 +159,21 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
     res.status(500).json({ message: 'Stat error', error: err })
   }
 })
+HackathonAPIRouter.delete('/hackathon', async (req, res) => {
+  const { id } = req.body;
+  try {
+    const hackathon = await Hackathon.findByPk(id);
+
+    if (!hackathon) {
+      return res.status(404).json({ message: "Hackathon not found" });
+    }
+    await hackathon.destroy();
+    return res.status(200).json({ message: "Hackathon deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting hackathon:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 
 module.exports = HackathonAPIRouter

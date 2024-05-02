@@ -10,7 +10,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         username: 'shuhermayer',
-        is_org: true,
+        is_org: false,
       },
       {
         email: 'alinaluzanova@gmail.com',
@@ -20,7 +20,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         username: 'alinaluzanova',
-        is_org: true,
+        is_org: false,
       },
       {
         email: 'thothex@infochemistry.ru',

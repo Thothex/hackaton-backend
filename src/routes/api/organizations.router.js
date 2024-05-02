@@ -61,9 +61,6 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
             const userIds = userOrgs.map(userOrg => userOrg.userId);
             const users = await User.findAll({ where: { id: userIds },  attributes: { exclude: ['password'] }, raw: true });
             const organizers = await User.findAll({ where: { isOrg: true },   attributes: { exclude: ['password'] }, raw: true });
-            // const hackathons = await Promise.all(organizers.map(async (organizer) => {
-            //     return await Hackathon.findAll({ where: { organizer_id: organizer.id }, raw: true });
-            // }));
             const hackathons = await Hackathon.findAll({where:{organizer_id:organization.id }})
 
             res.status(200).json({ organization, users, hackathons, totalPeople: userOrgs.length });
@@ -71,7 +68,65 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
             console.error('Ошибка при получении данных об организации, пользователях и хакатонах:', error);
             res.status(500).json({ error: 'Не удалось получить данные' });
         }
-    });
+    })
+    .get('/organizations/organizer/:organizerId', async (req, res) => {
+        try {
+            const { organizerId } = req.params;
+
+            const userOrg = await UserOrganizations.findOne({ where: { userId: organizerId } });
+            if (!userOrg) {
+                return res.status(404).json({ error: "User organization not found" });
+            }
+
+            const organization = await Organizations.findByPk(userOrg.organizationId);
+            if (!organization) {
+                return res.status(404).json({ error: "Organization not found" });
+            }
+
+            const userOrgs = await UserOrganizations.findAll({ where: { organizationId: organization.id }, raw: true });
+            const userIds = userOrgs.map(userOrg => userOrg.userId);
+            const users = await User.findAll({ where: { id: userIds }, attributes: { exclude: ['password'] }, raw: true });
+
+            const hackathons = await Hackathon.findAll({ where: { organizer_id: organization.id } });
+
+            res.status(200).json({
+                organization,
+                users,
+                hackathons,
+                totalPeople: userOrgs.length
+            });
+        } catch (err) {
+            console.error("Error:", err);
+            res.status(500).json({ error: "Internal server error" });
+        }
+    })
+.put('/organizations/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, link } = req.body;
+    console.log("PARAMS________-------", name, description, link)
+        if (!name || !description) {
+            return res.status(400).json({ error: 'Missing parameters' });
+        }
+
+        const organization = await Organizations.findByPk(id);
+
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found' });
+        }
+
+        organization.name = name;
+        organization.description = description;
+        organization.link = link;
+
+        await organization.save();
+
+        return res.status(200).json(organization);
+    } catch (error) {
+        console.error('Error updating organization:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 

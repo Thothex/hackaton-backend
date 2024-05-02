@@ -10,6 +10,8 @@ module.exports = {
       },
       hackathon_id: {
         type: Sequelize.INTEGER,
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       organization_id: {
         type: Sequelize.INTEGER,

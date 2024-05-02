@@ -21,6 +21,8 @@ module.exports = {
           model: 'hackathons',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,

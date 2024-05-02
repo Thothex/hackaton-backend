@@ -20,6 +20,8 @@ module.exports = {
           model: 'hackathons',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       max_score: {
         type: Sequelize.INTEGER,

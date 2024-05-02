@@ -3,27 +3,23 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const organizations = [
       {
-        name: 'Leopards',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        name: 'Bears',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
         name: 'MSU',
+        description:'common desc',
+        link:'https://www.deepl.com/translator',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         name: 'ITMO',
+        description:'common desc',
+        link:'https://www.deepl.com/translator',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         name: 'School №619 of SPB',
+        link:'https://www.deepl.com/translator',
+        description:'common desc',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
