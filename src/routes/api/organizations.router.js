@@ -59,8 +59,8 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
 
             const userOrgs = await UserOrganizations.findAll({ where: { organizationId: id }, raw: true });
             const userIds = userOrgs.map(userOrg => userOrg.userId);
-            const users = await User.findAll({ where: { id: userIds }, raw: true });
-            const organizers = await User.findAll({ where: { isOrg: true }, raw: true });
+            const users = await User.findAll({ where: { id: userIds },  attributes: { exclude: ['password'] }, raw: true });
+            const organizers = await User.findAll({ where: { isOrg: true },   attributes: { exclude: ['password'] }, raw: true });
             // const hackathons = await Promise.all(organizers.map(async (organizer) => {
             //     return await Hackathon.findAll({ where: { organizer_id: organizer.id }, raw: true });
             // }));
