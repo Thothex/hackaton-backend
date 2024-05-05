@@ -35,13 +35,10 @@ module.exports = {
       answers: {
         type: Sequelize.JSON,
       },
-      wrong1: {
+      link:{
         type: Sequelize.TEXT,
       },
-      wrong2: {
-        type: Sequelize.TEXT,
-      },
-      wrong3: {
+      document: {
         type: Sequelize.TEXT,
       },
       createdAt: {

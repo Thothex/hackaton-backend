@@ -29,9 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       answers: DataTypes.JSON,
       answer: DataTypes.TEXT,
-      wrong1: DataTypes.TEXT,
-      wrong2: DataTypes.TEXT,
-      wrong3: DataTypes.TEXT,
+      link:DataTypes.TEXT,
+      document:DataTypes.TEXT,
     },
 
     {
