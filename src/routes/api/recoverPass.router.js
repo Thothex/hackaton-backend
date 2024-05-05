@@ -7,8 +7,6 @@ const bcrypt = require("bcrypt");
 
 const RecoverAPIRouter = express.Router();
 
-const tokenMap = {};
-
 const transporter = nodemailer.createTransport({
     host: 'smtp.yandex.ru',
     port: process.env.MAIL_PORT,
@@ -32,7 +30,8 @@ RecoverAPIRouter.post('/recover-email', async (req, res) => {
             return res.status(404).json({ error: "User doesn't exist" });
         }
 
-        tokenMap.email = token;
+        user.token = token;
+        await user.save();
 
         await transporter.sendMail({
             from: `${process.env.MAIL_ACCOUNT}`,
@@ -45,33 +44,33 @@ RecoverAPIRouter.post('/recover-email', async (req, res) => {
                 <a  href="${process.env.CLIENT_URL}/recover/${email}/${token}">Recover password</a>`,
         });
 
-        return res.status(200).json({ message: 'Check your email to recover password', token });
+        return res.status(200).json({ message: 'Check your email to recover password' });
     } catch (e) {
         res.status(500).json({ error: e });
     }
 });
 
-
 RecoverAPIRouter.put('/recover', async(req,res)=>{
     try{
-        const {email, password, repeatPassword, token} = req.body;
+        const { email, password, repeatPassword, token } = req.body;
 
         const user = await User.findOne({ where: { email } });
         if (!user) {
             return res.status(404).json({ error: "User doesn't exist" });
         }
-        console.log(token, tokenMap)
-        if(token === tokenMap.email){
-            user.password = await bcrypt.hash(password, 10);
-            await user.save();
-            res.status(200).json({message:'Password successfully saved'})
-        } else {
-            res.status(400).json({message:'Error while saving password'})
-        }
-    } catch (error) {
-        res.status(500).json({error})
-    }
 
-})
+        if (user.token !== token) {
+            return res.status(400).json({ error: "Invalid or expired token" });
+        }
+
+        user.password = await bcrypt.hash(password, 10);
+        user.token = null;
+        await user.save();
+
+        res.status(200).json({ message: 'Password successfully saved' });
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+});
 
 module.exports = RecoverAPIRouter;

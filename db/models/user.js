@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       avatar: DataTypes.TEXT,
       score: DataTypes.INTEGER,
+      token:DataTypes.STRING,
     },
     {
       sequelize,
