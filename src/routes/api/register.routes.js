@@ -1,9 +1,9 @@
-const exoress = require('express')
+const express = require('express')
 const bcrypt = require('bcrypt')
 
 const { User } = require('../../../db/models/index')
 
-const RegistrationAPIRouter = exoress.Router()
+const RegistrationAPIRouter = express.Router()
 
 RegistrationAPIRouter.post('/register', async (req, res) => {
   const { email, username, password } = req.body

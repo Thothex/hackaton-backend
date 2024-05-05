@@ -20,7 +20,7 @@ const { configure, getWebSocketConnection } = require('./src/lib/wsocket')
 const HachathonTeamsApiRouter = require('./src/routes/api/hackathonteams.routes')
 const HighscoreAPIRouter = require('./src/routes/api/highscore.router')
 const UserRankAPIRouter = require('./src/routes/api/userRank.route')
-
+const RecoverAPIRouter = require('./src/routes/api/recoverPass.router')
 const app = express()
 const PORT = 3000
 
@@ -31,6 +31,7 @@ serverConfig(app)
 // api routes
 app.use('/api', RegistrationAPIRouter)
 app.use('/api', RegistrationAPIRouter)
+app.use('/api', RecoverAPIRouter)
 app.use('/api', LoginAPIRouter)
 app.use('/api', HackathonAPIRouter)
 app.use('/api', CategoryApiRouter)
