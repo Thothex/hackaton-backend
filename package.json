@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js --ext js,jsx,json,css --ignore sessions",
+    "dev": "nodemon server.js --ext js,jsx,css --ignore sessions",
     "db-create": "npx sequelize db:create",
     "db-drop": "npx sequelize db:drop",
     "db-migrate-undo": "npx sequelize db:migrate:undo:all ",

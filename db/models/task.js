@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       answers: DataTypes.JSON,
       answer: DataTypes.TEXT,
       link:DataTypes.TEXT,
-      document:DataTypes.TEXT,
+      isJSONchem:DataTypes.BOOLEAN,
     },
 
     {

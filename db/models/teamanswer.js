@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       answer: DataTypes.JSON,
       score: DataTypes.INTEGER,
+        pages:DataTypes.INTEGER,
     },
     {
       sequelize,

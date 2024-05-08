@@ -3,7 +3,7 @@ const { Task, Hackathon } = require('../../../db/models')
 
 TaskApiRouter.post('/hackathon/:hackathonId/task', async (req, res) => {
   const { hackathonId } = req.params
-  const { name, description, maxScore, type, answers } = req.body
+  const { name, description, maxScore, type, answers,link,isJSONchem } = req.body
   const task = await Task.create({
     name,
     description,
@@ -11,6 +11,8 @@ TaskApiRouter.post('/hackathon/:hackathonId/task', async (req, res) => {
     maxScore: maxScore || 100,
     type,
     answers,
+    link,
+    isJSONchem
   })
 
   res.status(201)
@@ -19,7 +21,7 @@ TaskApiRouter.post('/hackathon/:hackathonId/task', async (req, res) => {
 
 TaskApiRouter.put('/task/:taskId', async (req, res) => {
   const { taskId } = req.params
-  const { id, name, description, maxScore, type, answers, hackathonId } = req.body
+  const { id, name, description, maxScore, type, answers, hackathonId, link, isJSONchem } = req.body
   try {
     const task = await Task.findByPk(id)
     console.log('task', task)
@@ -30,6 +32,8 @@ TaskApiRouter.put('/task/:taskId', async (req, res) => {
       maxScore: +maxScore,
       type,
       answers,
+      link,
+      isJSONchem
     })
   } catch (error) {
     console.error(error)

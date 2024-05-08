@@ -10,7 +10,8 @@ const {
   TeamAnswer,
   sequelize,
   UserOrganizations,
-  User
+  User,
+  TeamUsers
 } = require('../../../db/models/index')
 
 HackathonAPIRouter.get('/hackathon', async (req, res) => {
@@ -121,6 +122,18 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
             attributes: ['teamId', 'hackathonId'],
           },
           attributes: ['id', 'name'],
+          // Включить информацию о пользователях команды
+          include: [
+            {
+              model: User,
+              through: {
+                model: TeamUsers,
+                attributes: [],
+              },
+              attributes: ['id', 'username', 'email', 'avatar'],
+              as: 'users',
+            },
+          ],
         },
         {
           model: Task,
@@ -128,13 +141,15 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
           attributes: ['id', 'name', 'maxScore'],
         },
       ],
-    })
+    });
+
+
     const taskIds = hackathon.tasks.map((task) => task.id)
     console.log('taskIds', taskIds)
 
     const teamsAnswers = await TeamAnswer.findAll({
       where: { taskId: taskIds },
-      attributes: ['teamId', 'taskId', 'score', 'answer'],
+      attributes: ['teamId', 'taskId', 'score', 'answer', 'pages'],
       raw: true,
     })
     const teamsAnswersGrouped = teamsAnswers.map((item) => ({

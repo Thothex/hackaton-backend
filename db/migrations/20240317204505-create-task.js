@@ -38,8 +38,9 @@ module.exports = {
       link:{
         type: Sequelize.TEXT,
       },
-      document: {
-        type: Sequelize.TEXT,
+      isJSONchem:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,
