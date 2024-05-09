@@ -1,6 +1,6 @@
 const UserAnswersAPIRouter = require('express').Router()
 const WebSocket = require('ws')
-const { Task, TeamAnswer, Hackathon, UserOrganizations, HackathonsOrganizations } = require('../../../db/models')
+const { Task, TeamAnswer, Hackathon, UserOrganizations, HackathonsOrganizations, Organizations } = require('../../../db/models')
 
 const { default: setTeamAnswers } = require('../../lib/setTeamAnswers')
 const { configure, getWebSocketConnection } = require('../../lib/wsocket')
@@ -129,7 +129,6 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     // //   }
     // })
     const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}/${fileName}` })
-    console.log('fileUrlJSON', fileUrlJSON)
     const result = await setTeamAnswers({
       userAnswersJSON: fileUrlJSON,
       taskId,
@@ -137,11 +136,13 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
       teamId,
     })
     wsOnAnswer(wsConnections, WebSocket, +hackathonId)
-    res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
+    return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) });
+
   }
 
   if (taskType === 'many-answers') {
     // сравниваем ответы из userAnswers с правильными ответами из базы
+console.log('ANSWERS', task.answers)
     const rightAnswers = Object.entries(task.answers).reduce((acc, [key, answer]) => {
       if (answer.isRight) {
         acc.push({ id: key, checked: true })
@@ -168,7 +169,7 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     })
 
     wsOnAnswer(wsConnections, WebSocket, hackathonId)
-    res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
+    return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 
   if (taskType === 'input') {
@@ -180,16 +181,23 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
       teamId,
     })
     wsOnAnswer(wsConnections, WebSocket, hackathonId)
-    res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
+    return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
   }
 })
 
 UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
   try {
     const { answers, hackathonId } = req.body
-    const ha = await Hackathon.findByPk(hackathonId)
-    if (req.user.id !== ha.dataValues.organizer_id) {
-      res.status(400).json({ status: 'error', message: 'You are not the organizer of this hackathon' })
+    const ha = await Hackathon.findByPk(hackathonId);
+    const isOrg = await UserOrganizations.findOne({
+      where:{
+        userId: req.user.id,
+        organizationId: ha.organizer_id
+      }
+    });
+
+    if ( req.user.role !== 'admin' || !req.user.isOrg || !isOrg) {
+      return res.status(400).json({ status: 'error', message: 'You are not the organizer of this hackathon' })
     }
     if (answers) {
       answers.forEach(async (answer) => {
