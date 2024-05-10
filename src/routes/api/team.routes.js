@@ -86,8 +86,8 @@ TeamApiRouter.get('/team/:hackathonId/:userId', async (req, res) => {
         userId: +userId,
       },
     })
-    console.log('teamIds', teamIds)
-    console.log('teamUser', teamUser)
+    console.log('teamIdsAAAAAA', teamIds)
+    console.log('teamUserAAAAA', teamUser)
 
     if (!teamUser) {
       return res.status(404).json({ message: 'User is not a member of any team for this hackathon' })

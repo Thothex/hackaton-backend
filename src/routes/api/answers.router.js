@@ -129,11 +129,13 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     // //   }
     // })
     const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}/${fileName}` })
+    let pages = null;
     const result = await setTeamAnswers({
       userAnswersJSON: fileUrlJSON,
       taskId,
       userId: req.user.id,
       teamId,
+      pages
     })
     wsOnAnswer(wsConnections, WebSocket, +hackathonId)
     return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) });
@@ -141,8 +143,6 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
   }
 
   if (taskType === 'many-answers') {
-    // сравниваем ответы из userAnswers с правильными ответами из базы
-console.log('ANSWERS', task.answers)
     const rightAnswers = Object.entries(task.answers).reduce((acc, [key, answer]) => {
       if (answer.isRight) {
         acc.push({ id: key, checked: true })
@@ -174,11 +174,13 @@ console.log('ANSWERS', task.answers)
 
   if (taskType === 'input') {
     // TODO см в файле функции setTeamAnswers
+    let pages = null
     const result = await setTeamAnswers({
       userAnswersJSON,
       taskId,
       userId: req.user.id,
       teamId,
+      pages
     })
     wsOnAnswer(wsConnections, WebSocket, hackathonId)
     return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
