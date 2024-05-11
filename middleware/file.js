@@ -35,12 +35,11 @@ const answerStorage = multer.diskStorage({
             const newData = JSON.parse(data);
             const pages = countImages(newData.annotations);
             // await teamAns.update({ pages: pages });
-            console.log(pages, 'PAGESSSSS')
           await setTeamAnswers({
               taskId,
               userId: req.user.id,
               teamId,
-              pages
+              pages,
             })
           } catch (jsonErr) {
             console.error('Error parsing JSON:', jsonErr);

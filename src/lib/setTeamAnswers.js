@@ -9,13 +9,14 @@ const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score, teamId,p
     if (score !== undefined && score !== null && score >= 0) {
       scoreCount = score
     } else {
-      scoreCount = 0
+      scoreCount = null
     }
     let pagesCount
     if (pages !== undefined && pages !== null) {
       pagesCount = pages
     } else {
-      pagesCount = teamAnswers.pages
+      // pagesCount = teamAnswers.pages
+      pagesCount = null
     }
     if (teamAnswers) {
       const result = await teamAnswers.update({
@@ -23,9 +24,9 @@ const setTeamAnswers = async ({ userAnswersJSON, taskId, userId, score, teamId,p
         score: scoreCount,
         pages: pagesCount
       })
-      console.log(result, 'RESULT')
       return result
     }
+
     // TODO: у меня уже это второй креэйт, в котором указываю поля не из модели, а из таблицы
     // разобраться почему не работают поля модели
     const result = await TeamAnswer.create({

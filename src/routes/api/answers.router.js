@@ -102,11 +102,6 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     const fileName = req.file.originalname
     const basePath = `/answers/${String(hackathonId)}/${String(teamId)}/${String(taskId)}`
 
-    // if (!fs.existsSync(baseUrl)) {
-    //   fs.mkdirSync(baseUrl, { recursive: true })
-    // }
-    // const fileData = req.file.buffer
-
     // TODO: !!!!!! путь должен быть таким, чтобы другой человек не перезатёр,
     // т.е.в урл должена быть директория
     // id хакатона, id задания, id пользователя
@@ -119,27 +114,23 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
     // записывать в свойство file/answers/text в зависимости от типа задания
     // (будет приходить с фронта))
 
-    // fs.writeFile(`${baseUrl}/${fileName}`, fileData, (err) => {
-    //   if (err) {
-    //     console.error('Error writing file:', err)
-    //     res.status(500).send('Error writing file.')
-    //   } else {
-    //     console.log('File uploaded successfully:', taskId)
-    //     res.send('File uploaded successfully.')
-    // //   }
-    // })
     const fileUrlJSON = JSON.stringify({ fileUrl: `${basePath}/${fileName}` })
-    let pages = null;
+    let pages = 0;
     const result = await setTeamAnswers({
       userAnswersJSON: fileUrlJSON,
       taskId,
       userId: req.user.id,
       teamId,
-      pages
+      pages,
     })
-    wsOnAnswer(wsConnections, WebSocket, +hackathonId)
-    return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) });
+    const wsConnections = getWebSocketConnection();
+    if (result) {
+      setTimeout(() => {
+        wsOnAnswer(wsConnections, WebSocket, +hackathonId);
+        return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) });
 
+      }, 6000);
+    }
   }
 
   if (taskType === 'many-answers') {
@@ -173,14 +164,12 @@ UserAnswersAPIRouter.post('/answers/:taskId/:taskType', fileMiddleware.single('f
   }
 
   if (taskType === 'input') {
-    // TODO см в файле функции setTeamAnswers
-    let pages = null
     const result = await setTeamAnswers({
       userAnswersJSON,
       taskId,
       userId: req.user.id,
       teamId,
-      pages
+
     })
     wsOnAnswer(wsConnections, WebSocket, hackathonId)
     return res.status(201).json({ ...result.dataValues, answer: JSON.parse(result.dataValues.answer) })
@@ -206,7 +195,8 @@ UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
         const { id, score } = answer
         await TeamAnswer.update({ score }, { where: { id } })
       })
-      const wsConnections = getWebSocketConnection()
+      const wsConnections = getWebSocketConnection();
+      console.log("WSCON", wsConnections)
       wsOnAnswer(wsConnections, WebSocket, +hackathonId)
       return res.status(201).json({ status: 'ok' })
     }

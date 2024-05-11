@@ -87,6 +87,7 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
           model: Task,
           as: 'tasks',
         },
+
       ],
     })
     if (!hackathon) {
@@ -94,12 +95,29 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
       return
     }
 const organization = await Organizations.findByPk(hackathon.organizer_id)
-
+    const users = await User.findAll({
+      attributes: ['id'],
+      where: { isOrg: true },
+      include: [
+        {
+          model: Organizations,
+          as:'organizations',
+          through: {
+            model: UserOrganizations,
+            as:'user_organizations',
+            where: {
+              organizationId: organization.id // Фильтруем по идентификатору организации
+            }
+          }
+        }
+      ]
+    });
       const plainHackathon = {
         ...hackathon.toJSON(),
 
         category_id: undefined,
-        organizer_name: organization.name
+        organizer_name: organization.name,
+        users
       }
       res.status(200).json(plainHackathon)
 
