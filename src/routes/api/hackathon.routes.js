@@ -83,10 +83,10 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
             attributes: [],
           },
         },
-        {
-          model: Task,
-          as: 'tasks',
-        },
+        // {
+        //   model: Task,
+        //   as: 'tasks',
+        // },
 
       ],
     })
@@ -193,10 +193,32 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
   }
 })
 HackathonAPIRouter.delete('/hackathon', async (req, res) => {
-  const { id } = req.body;
+  const { id, userID } = req.body;
   try {
     const hackathon = await Hackathon.findByPk(id);
+    const user = await User.findByPk(userID, {
+      include: [
+        {
+          model: Organizations,
+          as: 'organizations',
+          through: {
+            model: UserOrganizations,
+            as: 'user_organizations',
+            where: {
+              organizationId: hackathon.organizer_id
+            }
+          }
+        }
+      ]
+    });
+    if (!user || user.role !== 'admin' || (!user.organizations || !user.organizations.length) && !user.isOrg) {
+      return res.status(403).json({ error: 'You are not allowed to perform this action' });
+    }
 
+    const isOrganizer = user.organizations.some(org => org.id === hackathon.organizer_id);
+    if (!isOrganizer) {
+      return res.status(403).json({ error: 'You are not allowed to perform this action' });
+    }
     if (!hackathon) {
       return res.status(404).json({ message: "Hackathon not found" });
     }

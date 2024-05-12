@@ -1,6 +1,6 @@
 const UserAnswersAPIRouter = require('express').Router()
 const WebSocket = require('ws')
-const { Task, TeamAnswer, Hackathon, UserOrganizations, HackathonsOrganizations, Organizations } = require('../../../db/models')
+const { Task, TeamAnswer, Hackathon, UserOrganizations, HackathonsOrganizations, Organizations, User} = require('../../../db/models')
 
 const { default: setTeamAnswers } = require('../../lib/setTeamAnswers')
 const { configure, getWebSocketConnection } = require('../../lib/wsocket')
@@ -180,15 +180,30 @@ UserAnswersAPIRouter.route('/answers/score').post(async (req, res) => {
   try {
     const { answers, hackathonId } = req.body
     const ha = await Hackathon.findByPk(hackathonId);
-    const isOrg = await UserOrganizations.findOne({
-      where:{
-        userId: req.user.id,
-        organizationId: ha.organizer_id
-      }
+    const user = await User.findByPk(req.user.id, {
+      include: [
+        {
+          model: Organizations,
+          as: 'organizations',
+          through: {
+            model: UserOrganizations,
+            as: 'user_organizations',
+            where: {
+              organizationId: ha.organizer_id
+            }
+          }
+        }
+      ]
     });
+    if (!user || (!user.organizations || !user.organizations.length) && !user.isOrg && user.role !== 'admin') {
+      console.log("Access denied:", user);
+      return res.status(403).json({ error: 'You are not allowed to perform this action' });
+    }
 
-    if ( req.user.role !== 'admin' || !req.user.isOrg || !isOrg) {
-      return res.status(400).json({ status: 'error', message: 'You are not the organizer of this hackathon' })
+
+    const isOrganizer = user.organizations.some(org => org.id === ha.organizer_id);
+    if (!isOrganizer) {
+      return res.status(403).json({ error: 'You are not allowed to perform this action' });
     }
     if (answers) {
       answers.forEach(async (answer) => {

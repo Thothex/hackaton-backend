@@ -23,7 +23,12 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
     })
     .post('/organizations/new', upload.single('picture'), async (req, res) => {
         try {
-            const { name, description } = req.body;
+            const { name, description, link, userID } = req.body;
+            const user = await User.findByPk(userID);
+
+            if(user.role !== 'admin'){
+                return res.status(403).json({message:'Unauthorized'})
+            }
 
             if (!req.file) {
                 return res.status(400).json({ error: 'Изображение не загружено' });
@@ -38,6 +43,7 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
             const newOrganization = await Organizations.create({
                 name,
                 description,
+                link,
                 picture: req.file.filename
             });
 
@@ -103,11 +109,29 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
 .put('/organizations/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, link } = req.body;
-    console.log("PARAMS________-------", name, description, link)
-        if (!name || !description) {
-            return res.status(400).json({ error: 'Missing parameters' });
+        const { name, description,link, userID } = req.body;
+
+        const user = await User.findByPk(userID, {
+            include: [
+                {
+                    model: Organizations,
+                    as: 'organizations',
+                    through: {
+                        model: UserOrganizations,
+                        as: 'user_organizations',
+                        where: {
+                            organizationId: id
+                        }
+                    }
+                }
+            ]
+        });
+
+        if (!user || (!user.organizations || !user.organizations.length) && !user.isOrg && user.role !== 'admin') {
+            console.log("Access denied:", user);
+            return res.status(403).json({ error: 'You are not allowed to perform this action' });
         }
+
 
         const organization = await Organizations.findByPk(id);
 
@@ -115,9 +139,9 @@ OrganizationApiRouter.get('/organizations', async (req, res) => {
             return res.status(404).json({ error: 'Organization not found' });
         }
 
-        organization.name = name;
-        organization.description = description;
-        organization.link = link;
+        if (name) organization.name = name;
+        if (description) organization.description = description;
+        if (link) organization.link = link;
 
         await organization.save();
 
