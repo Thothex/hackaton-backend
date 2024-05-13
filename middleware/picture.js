@@ -5,7 +5,7 @@ const fs = require('fs');
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const name = req.body.name;
-        const basePath = path.join(__dirname, '..', 'public', 'organizations', name);
+        const basePath = path.join(__dirname, '..', 'public', 'organizations', name.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g, ''));
         if (!fs.existsSync(basePath)) {
             fs.mkdirSync(basePath, { recursive: true });
         }
