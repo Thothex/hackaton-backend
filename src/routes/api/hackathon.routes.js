@@ -83,10 +83,10 @@ HackathonAPIRouter.get('/hackathon/:id', async (req, res) => {
             attributes: [],
           },
         },
-        // {
-        //   model: Task,
-        //   as: 'tasks',
-        // },
+        {
+          model: Task,
+          as: 'tasks',
+        },
 
       ],
     })
@@ -163,7 +163,6 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
 
 
     const taskIds = hackathon.tasks.map((task) => task.id)
-    console.log('taskIds', taskIds)
 
     const teamsAnswers = await TeamAnswer.findAll({
       where: { taskId: taskIds },
@@ -214,6 +213,7 @@ HackathonAPIRouter.delete('/hackathon', async (req, res) => {
     if (!user || user.role !== 'admin' || (!user.organizations || !user.organizations.length) && !user.isOrg) {
       return res.status(403).json({ error: 'You are not allowed to perform this action' });
     }
+
 
     const isOrganizer = user.organizations.some(org => org.id === hackathon.organizer_id);
     if (!isOrganizer) {
