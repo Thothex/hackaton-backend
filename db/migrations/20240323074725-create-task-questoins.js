@@ -20,6 +20,8 @@ module.exports = {
           model: 'tasks',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       score: {
         type: Sequelize.STRING,

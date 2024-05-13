@@ -26,6 +26,8 @@ module.exports = {
           model: 'organizations',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       rules: {
         type: Sequelize.TEXT,

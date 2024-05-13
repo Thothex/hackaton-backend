@@ -14,6 +14,8 @@ module.exports = {
           model: 'users',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       is_captain: {
         type: Sequelize.BOOLEAN,
@@ -27,6 +29,8 @@ module.exports = {
           model: 'teams',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,

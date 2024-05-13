@@ -14,6 +14,8 @@ module.exports = {
           model: 'teams',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       hackathon_id: {
         type: Sequelize.INTEGER,
