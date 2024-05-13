@@ -210,7 +210,7 @@ HackathonAPIRouter.delete('/hackathon', async (req, res) => {
         }
       ]
     });
-    if (!user || user.role !== 'admin' || (!user.organizations || !user.organizations.length) && !user.isOrg) {
+    if (user.role !== 'admin' ) {
       return res.status(403).json({ error: 'You are not allowed to perform this action' });
     }
 
