@@ -166,7 +166,7 @@ HackathonAPIRouter.get('/hackathon/:id/stat', async (req, res) => {
 
     const teamsAnswers = await TeamAnswer.findAll({
       where: { taskId: taskIds },
-      attributes: ['teamId', 'taskId', 'score', 'answer', 'pages'],
+      attributes: ['teamId', 'taskId', 'score', 'answer', 'pages', 'updatedAt'],
       raw: true,
     })
     const teamsAnswersGrouped = teamsAnswers.map((item) => ({
